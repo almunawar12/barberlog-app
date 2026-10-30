@@ -97,6 +97,8 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Eloquent writes UTC strings without an offset; pin the session so timestamptz reads them as UTC.
+            'timezone' => 'UTC',
         ],
 
         'sqlsrv' => [

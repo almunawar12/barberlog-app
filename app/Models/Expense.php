@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property int $id
@@ -40,6 +41,31 @@ class Expense extends Model
             'amount' => 'integer',
             'payment_method' => PaymentMethod::class,
             'version' => 'integer',
+        ];
+    }
+
+    public static function nextReference(): string
+    {
+        $next = DB::selectOne("select nextval('expense_reference_seq') as value")->value;
+
+        return 'EXP-'.str_pad((string) $next, 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Stable shape stored in audit_logs.
+     *
+     * @return array<string, mixed>
+     */
+    public function auditSnapshot(): array
+    {
+        return [
+            'reference' => $this->reference,
+            'occurred_at' => $this->occurred_at->utc()->toIso8601String(),
+            'description' => $this->description,
+            'category' => $this->category?->value,
+            'amount' => $this->amount,
+            'payment_method' => $this->payment_method->value,
+            'version' => $this->version,
         ];
     }
 

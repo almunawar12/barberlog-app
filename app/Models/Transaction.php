@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property int $id
@@ -38,6 +39,37 @@ class Transaction extends Model
             'payment_method' => PaymentMethod::class,
             'total_amount' => 'integer',
             'version' => 'integer',
+        ];
+    }
+
+    public static function nextReference(): string
+    {
+        $next = DB::selectOne("select nextval('transaction_reference_seq') as value")->value;
+
+        return 'TRX-'.str_pad((string) $next, 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Stable shape stored in audit_logs; items must be loaded.
+     *
+     * @return array<string, mixed>
+     */
+    public function auditSnapshot(): array
+    {
+        return [
+            'reference' => $this->reference,
+            'occurred_at' => $this->occurred_at->utc()->toIso8601String(),
+            'payment_method' => $this->payment_method->value,
+            'total_amount' => $this->total_amount,
+            'note' => $this->note,
+            'version' => $this->version,
+            'items' => $this->items->map(fn (TransactionItem $item) => [
+                'service_id' => $item->service_id,
+                'service_name_snapshot' => $item->service_name_snapshot,
+                'unit_price' => $item->unit_price,
+                'quantity' => $item->quantity,
+                'line_total' => $item->line_total,
+            ])->all(),
         ];
     }
 

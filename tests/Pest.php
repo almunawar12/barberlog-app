@@ -1,50 +1,55 @@
 <?php
 
+use App\Models\Service;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\TestCase;
-
-/*
-|--------------------------------------------------------------------------
-| Test Case
-|--------------------------------------------------------------------------
-|
-| The closure you provide to your test functions is always bound to a specific PHPUnit test
-| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "pest()" function to bind different classes or traits.
-|
-*/
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
 
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
+// Concurrency tests need real commits visible to other processes, so no wrapping transaction.
+// Their rows are really committed, so clear them afterwards or later Feature tests would see them.
+pest()->extend(TestCase::class)
+    ->use(DatabaseTruncation::class)
+    ->afterEach(fn () => DB::statement('truncate table users, services restart identity cascade'))
+    ->in('Concurrency');
 
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
-*/
-
-function something()
+function makeService(string $name = 'Potong Rambut', int $price = 25000, bool $active = true): Service
 {
-    // ..
+    return Service::create(['name' => $name, 'price' => $price, 'is_active' => $active]);
+}
+
+/**
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function transactionPayload(Service $service, array $overrides = []): array
+{
+    return array_merge([
+        'occurred_at' => now()->subMinute()->toIso8601String(),
+        'payment_method' => 'cash',
+        'items' => [['service_id' => $service->id, 'quantity' => 1, 'unit_price' => $service->price]],
+        'note' => null,
+        'idempotency_key' => (string) Str::uuid(),
+    ], $overrides);
+}
+
+/**
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function expensePayload(array $overrides = []): array
+{
+    return array_merge([
+        'occurred_at' => now()->subMinute()->toIso8601String(),
+        'description' => 'Silet',
+        'category' => 'supplies',
+        'amount' => 15000,
+        'payment_method' => 'cash',
+        'idempotency_key' => (string) Str::uuid(),
+    ], $overrides);
 }

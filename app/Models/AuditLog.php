@@ -24,6 +24,22 @@ class AuditLog extends Model
     public const UPDATED_AT = null;
 
     /**
+     * @param  array<string, mixed>|null  $before
+     * @param  array<string, mixed>|null  $after
+     */
+    public static function record(User $user, string $entityType, int $entityId, string $action, ?array $before, ?array $after): self
+    {
+        return self::create([
+            'user_id' => $user->id,
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'action' => $action,
+            'before_json' => $before,
+            'after_json' => $after,
+        ]);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
