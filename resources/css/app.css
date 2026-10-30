@@ -3,9 +3,66 @@
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
+/*
+ * Brand: charcoal #171717, ivory #FAF7F2, copper #BE7C48.
+ * Copper on ivory is only 3.19:1, so it is limited to focus rings and active
+ * indicators (UI components need 3:1). Small copper text uses --accent-text (6.09:1).
+ * Input borders use #8C8478 (3.46:1) so fields stay visible on ivory.
+ */
+:root {
+    --background: #faf7f2;
+    --foreground: #171717;
+    --card: #ffffff;
+    --card-foreground: #171717;
+    --primary: #171717;
+    --primary-foreground: #faf7f2;
+    --secondary: #efe9df;
+    --secondary-foreground: #171717;
+    --muted: #efe9df;
+    --muted-foreground: #5f5a53;
+    --accent: #be7c48;
+    --accent-text: #8a4f25;
+    --destructive: #b42318;
+    --destructive-foreground: #ffffff;
+    --border: #e4ded4;
+    --input: #8c8478;
+    --ring: #be7c48;
+    --radius: 0.5rem;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-text: var(--accent-text);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+}
+
 @theme {
     --font-sans:
         'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+}
+
+@layer base {
+    body {
+        background-color: var(--background);
+        color: var(--foreground);
+    }
 }

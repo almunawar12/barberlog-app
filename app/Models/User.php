@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * @property int $id
@@ -26,7 +28,7 @@ use Illuminate\Support\Carbon;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -39,5 +41,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Revoke mobile tokens and web sessions, optionally keeping the caller's own.
+     */
+    public function revokeOtherAccess(?string $keepSessionId = null, ?int $keepTokenId = null): void
+    {
+        $this->tokens()
+            ->when($keepTokenId, fn ($query) => $query->where('id', '!=', $keepTokenId))
+            ->delete();
+
+        DB::table('sessions')
+            ->where('user_id', $this->id)
+            ->when($keepSessionId, fn ($query) => $query->where('id', '!=', $keepSessionId))
+            ->delete();
     }
 }
