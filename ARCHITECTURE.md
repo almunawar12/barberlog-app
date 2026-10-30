@@ -40,34 +40,34 @@ The mobile app is native React Native, not a wrapper around the Inertia website.
 
 Use this structure for a new repository. For an existing repository, map these responsibilities to its current layout; do not move all files merely to match this proposal.
 
-| Path                                   | Responsibility                                               |
-| -------------------------------------- | ------------------------------------------------------------ |
-| `AGENTS.md`                            | Repository-wide AI working rules                             |
-| `ARCHITECTURE.md`                      | Technical boundaries and decisions                           |
-| `PRD.md`                               | Product requirements                                         |
-| `backend/app/Actions/Transactions/`    | Create, update, delete transaction use cases                 |
-| `backend/app/Actions/Expenses/`        | Expense use cases                                            |
-| `backend/app/Queries/Reports/`         | Shared report and summary queries                            |
-| `backend/app/Http/Controllers/Web/`    | Inertia transport                                            |
-| `backend/app/Http/Controllers/Api/V1/` | Mobile JSON transport                                        |
-| `backend/app/Http/Requests/`           | Validation and request authorization                         |
-| `backend/app/Http/Resources/`          | Explicit JSON serialization                                  |
-| `backend/app/Models/`                  | Eloquent entities and relations                              |
-| `backend/app/Enums/`                   | Stable internal enum values                                  |
-| `backend/database/migrations/`         | Schema evolution                                             |
-| `backend/lang/id/`                     | Indonesian server-side messages                              |
-| `backend/resources/js/pages/`          | Inertia screens                                              |
-| `backend/resources/js/components/`     | Reusable web components                                      |
-| `backend/resources/js/lib/`            | Focused web utilities                                        |
-| `backend/resources/js/locales/id.ts`   | Indonesian app messages if no localization convention exists |
-| `backend/tests/Feature/`               | HTTP, persistence, auth and invariant tests                  |
-| `mobile/app/`                          | Expo Router routes, preserving required filenames            |
-| `mobile/src/features/`                 | Native feature screens/hooks                                 |
-| `mobile/src/components/`               | Native reusable components                                   |
-| `mobile/src/lib/`                      | API client, formatting, token adapter                        |
-| `mobile/src/locales/id.ts`             | Indonesian native messages                                   |
-| `mobile/assets/`                       | Brand assets and launcher source                             |
-| `docs/openapi.yaml`                    | Implemented API contract                                     |
+| Path                                   | Responsibility                                                               |
+| -------------------------------------- | ---------------------------------------------------------------------------- |
+| `AGENTS.md`                            | Repository-wide AI working rules                                             |
+| `ARCHITECTURE.md`                      | Technical boundaries and decisions                                           |
+| `PRD.md`                               | Product requirements                                                         |
+| `backend/app/Actions/Transactions/`    | Create, update, delete transaction use cases                                 |
+| `backend/app/Actions/Expenses/`        | Expense use cases                                                            |
+| `backend/app/Queries/Reports/`         | Shared report and summary queries                                            |
+| `backend/app/Http/Controllers/Web/`    | Inertia transport                                                            |
+| `backend/app/Http/Controllers/Api/V1/` | Mobile JSON transport                                                        |
+| `backend/app/Http/Requests/`           | Validation and request authorization                                         |
+| `backend/app/Http/Resources/`          | Explicit JSON serialization                                                  |
+| `backend/app/Models/`                  | Eloquent entities and relations                                              |
+| `backend/app/Enums/`                   | Stable internal enum values                                                  |
+| `backend/database/migrations/`         | Schema evolution                                                             |
+| `backend/lang/id/`                     | Indonesian server-side messages                                              |
+| `backend/resources/js/pages/`          | Inertia screens                                                              |
+| `backend/resources/js/components/`     | Reusable web components                                                      |
+| `backend/resources/js/lib/`            | Focused web utilities                                                        |
+| `backend/resources/js/locales/id.ts`   | Indonesian app messages if no localization convention exists                 |
+| `backend/tests/Feature/`               | HTTP, persistence, auth and invariant tests                                  |
+| `mobile/src/app/`                      | Expo Router routes (SDK 58 template location), preserving required filenames |
+| `mobile/src/features/`                 | Native feature screens/hooks                                                 |
+| `mobile/src/components/`               | Native reusable components                                                   |
+| `mobile/src/lib/`                      | API client, formatting, token adapter                                        |
+| `mobile/src/locales/id.ts`             | Indonesian native messages                                                   |
+| `mobile/assets/`                       | Brand assets and launcher source                                             |
+| `docs/openapi.yaml`                    | Implemented API contract                                                     |
 
 These paths are a design proposal, not proof that files exist. Create only directories needed by the current implementation.
 

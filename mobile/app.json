@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "BarberLog",
+    "slug": "barberlog",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "barberlog",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.barberlog.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#171717",
+        "foregroundImage": "./assets/images/icon.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#171717",
+          "image": "./assets/images/icon.png",
+          "imageWidth": 200
+        }
+      ],
+      "expo-secure-store",
+      "expo-sharing",
+      "@react-native-community/datetimepicker"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
