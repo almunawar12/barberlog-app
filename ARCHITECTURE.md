@@ -8,16 +8,16 @@ One shop, one owner account, no cashier. Record paid services, expenses, and rep
 
 ## 2. Baseline stack
 
-| Layer | Project decision |
-| --- | --- |
-| Backend | Laravel 13, PHP 8.5 stable patch selected at installation |
-| Web | Inertia + React + TypeScript, Tailwind + shadcn/ui |
-| Mobile | React Native + TypeScript + Expo, Android first |
-| Database | PostgreSQL (pin a supported stable version at implementation), Eloquent |
-| Web authentication | Laravel session, secure cookies, CSRF |
-| Mobile authentication | Sanctum personal access token, SecureStore |
-| Mobile server state | TanStack Query |
-| Hosting | Docker, Nginx, PHP-FPM, PostgreSQL; Dokploy optional |
+| Layer                 | Project decision                                                        |
+| --------------------- | ----------------------------------------------------------------------- |
+| Backend               | Laravel 13, PHP 8.5 stable patch selected at installation               |
+| Web                   | Inertia + React + TypeScript, Tailwind + shadcn/ui                      |
+| Mobile                | React Native + TypeScript + Expo, Android first                         |
+| Database              | PostgreSQL (pin a supported stable version at implementation), Eloquent |
+| Web authentication    | Laravel session, secure cookies, CSRF                                   |
+| Mobile authentication | Sanctum personal access token, SecureStore                              |
+| Mobile server state   | TanStack Query                                                          |
+| Hosting               | Docker, Nginx, PHP-FPM, PostgreSQL; Dokploy optional                    |
 
 These choices come from the PRD. Inspect installed versions and lockfiles before implementation. Verify framework APIs against the installed version. Do not silently switch the database, auth mechanism, framework major, or Expo compatibility set.
 
@@ -40,34 +40,34 @@ The mobile app is native React Native, not a wrapper around the Inertia website.
 
 Use this structure for a new repository. For an existing repository, map these responsibilities to its current layout; do not move all files merely to match this proposal.
 
-| Path | Responsibility |
-| --- | --- |
-| `AGENTS.md` | Repository-wide AI working rules |
-| `ARCHITECTURE.md` | Technical boundaries and decisions |
-| `PRD.md` | Product requirements |
-| `backend/app/Actions/Transactions/` | Create, update, delete transaction use cases |
-| `backend/app/Actions/Expenses/` | Expense use cases |
-| `backend/app/Queries/Reports/` | Shared report and summary queries |
-| `backend/app/Http/Controllers/Web/` | Inertia transport |
-| `backend/app/Http/Controllers/Api/V1/` | Mobile JSON transport |
-| `backend/app/Http/Requests/` | Validation and request authorization |
-| `backend/app/Http/Resources/` | Explicit JSON serialization |
-| `backend/app/Models/` | Eloquent entities and relations |
-| `backend/app/Enums/` | Stable internal enum values |
-| `backend/database/migrations/` | Schema evolution |
-| `backend/lang/id/` | Indonesian server-side messages |
-| `backend/resources/js/pages/` | Inertia screens |
-| `backend/resources/js/components/` | Reusable web components |
-| `backend/resources/js/lib/` | Focused web utilities |
-| `backend/resources/js/locales/id.ts` | Indonesian app messages if no localization convention exists |
-| `backend/tests/Feature/` | HTTP, persistence, auth and invariant tests |
-| `mobile/app/` | Expo Router routes, preserving required filenames |
-| `mobile/src/features/` | Native feature screens/hooks |
-| `mobile/src/components/` | Native reusable components |
-| `mobile/src/lib/` | API client, formatting, token adapter |
-| `mobile/src/locales/id.ts` | Indonesian native messages |
-| `mobile/assets/` | Brand assets and launcher source |
-| `docs/openapi.yaml` | Implemented API contract |
+| Path                                   | Responsibility                                               |
+| -------------------------------------- | ------------------------------------------------------------ |
+| `AGENTS.md`                            | Repository-wide AI working rules                             |
+| `ARCHITECTURE.md`                      | Technical boundaries and decisions                           |
+| `PRD.md`                               | Product requirements                                         |
+| `backend/app/Actions/Transactions/`    | Create, update, delete transaction use cases                 |
+| `backend/app/Actions/Expenses/`        | Expense use cases                                            |
+| `backend/app/Queries/Reports/`         | Shared report and summary queries                            |
+| `backend/app/Http/Controllers/Web/`    | Inertia transport                                            |
+| `backend/app/Http/Controllers/Api/V1/` | Mobile JSON transport                                        |
+| `backend/app/Http/Requests/`           | Validation and request authorization                         |
+| `backend/app/Http/Resources/`          | Explicit JSON serialization                                  |
+| `backend/app/Models/`                  | Eloquent entities and relations                              |
+| `backend/app/Enums/`                   | Stable internal enum values                                  |
+| `backend/database/migrations/`         | Schema evolution                                             |
+| `backend/lang/id/`                     | Indonesian server-side messages                              |
+| `backend/resources/js/pages/`          | Inertia screens                                              |
+| `backend/resources/js/components/`     | Reusable web components                                      |
+| `backend/resources/js/lib/`            | Focused web utilities                                        |
+| `backend/resources/js/locales/id.ts`   | Indonesian app messages if no localization convention exists |
+| `backend/tests/Feature/`               | HTTP, persistence, auth and invariant tests                  |
+| `mobile/app/`                          | Expo Router routes, preserving required filenames            |
+| `mobile/src/features/`                 | Native feature screens/hooks                                 |
+| `mobile/src/components/`               | Native reusable components                                   |
+| `mobile/src/lib/`                      | API client, formatting, token adapter                        |
+| `mobile/src/locales/id.ts`             | Indonesian native messages                                   |
+| `mobile/assets/`                       | Brand assets and launcher source                             |
+| `docs/openapi.yaml`                    | Implemented API contract                                     |
 
 These paths are a design proposal, not proof that files exist. Create only directories needed by the current implementation.
 
@@ -129,9 +129,9 @@ Presentation mapping example:
 
 ```ts
 const paymentMethodLabels = {
-  cash: 'Tunai',
-  qris: 'QRIS',
-  transfer: 'Transfer',
+    cash: 'Tunai',
+    qris: 'QRIS',
+    transfer: 'Transfer',
 } as const;
 ```
 

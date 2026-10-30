@@ -25,23 +25,23 @@ Do not add cashiers, queues, booking, customer profiles, commissions, inventory,
 
 **All developer-owned identifiers and filenames use English. All app-owned user-visible text uses Indonesian.** Documentation and agent explanations may use Indonesian; this instruction file uses English for consistency with code terminology.
 
-| Surface | Convention | Example |
-| --- | --- | --- |
+| Surface                         | Convention                          | Example                                              |
+| ------------------------------- | ----------------------------------- | ---------------------------------------------------- |
 | PHP classes and class filenames | PascalCase, singular responsibility | `CreateTransaction.php`, `TransactionController.php` |
-| PHP methods and variables | camelCase | `$totalAmount`, `calculateTotal()` |
-| TypeScript variables/functions | camelCase | `paymentMethod`, `formatCurrency()` |
-| React components and types | PascalCase | `TransactionForm`, `TransactionSummary` |
-| React component filenames | PascalCase `.tsx` | `TransactionForm.tsx` |
-| Custom hook names/files | camelCase starting with use | `useTransactions.ts` |
-| General TS utility filenames | kebab-case | `format-currency.ts`, `api-client.ts` |
-| Feature directories | kebab-case English | `transactions`, `shop-settings` |
-| Database tables/columns | snake_case; tables plural | `transaction_items`, `occurred_at` |
-| JSON API fields | snake_case | `payment_method`, `total_amount` |
-| Routes | English nouns; kebab-case segments | `/transactions`, `/auth/forgot-password` |
-| Constants/environment names | UPPER_SNAKE_CASE | `MAX_TRANSACTION_AMOUNT`, `APP_URL` |
-| Machine codes/enums | Stable English values | `cash`, `version_conflict` |
-| Translation keys | English semantic keys | `transactions.save`, `errors.network` |
-| Tests | English behavior descriptions | `rejects a stale transaction version` |
+| PHP methods and variables       | camelCase                           | `$totalAmount`, `calculateTotal()`                   |
+| TypeScript variables/functions  | camelCase                           | `paymentMethod`, `formatCurrency()`                  |
+| React components and types      | PascalCase                          | `TransactionForm`, `TransactionSummary`              |
+| React component filenames       | PascalCase `.tsx`                   | `TransactionForm.tsx`                                |
+| Custom hook names/files         | camelCase starting with use         | `useTransactions.ts`                                 |
+| General TS utility filenames    | kebab-case                          | `format-currency.ts`, `api-client.ts`                |
+| Feature directories             | kebab-case English                  | `transactions`, `shop-settings`                      |
+| Database tables/columns         | snake_case; tables plural           | `transaction_items`, `occurred_at`                   |
+| JSON API fields                 | snake_case                          | `payment_method`, `total_amount`                     |
+| Routes                          | English nouns; kebab-case segments  | `/transactions`, `/auth/forgot-password`             |
+| Constants/environment names     | UPPER_SNAKE_CASE                    | `MAX_TRANSACTION_AMOUNT`, `APP_URL`                  |
+| Machine codes/enums             | Stable English values               | `cash`, `version_conflict`                           |
+| Translation keys                | English semantic keys               | `transactions.save`, `errors.network`                |
+| Tests                           | English behavior descriptions       | `rejects a stale transaction version`                |
 
 Framework-required filenames such as `_layout.tsx`, `index.tsx`, Laravel timestamped migrations, and package files retain their required conventions. In an existing repository, preserve its established English naming style rather than mass-renaming files to satisfy a cosmetic preference. Do not maintain `agents.md` and `AGENTS.md` as separate competing files.
 
@@ -53,19 +53,19 @@ Avoid ambiguous names such as `data2`, `temp`, `thing`, `handleStuff`, `Manager`
 
 Apply Indonesian to navigation, headings, buttons, placeholders, tooltips, accessibility labels, validation, notifications, dialogs, empty states, emails, and human-readable report/CSV headings. Preserve proper nouns such as BarberLog, QRIS, and user-entered content.
 
-| Internal value | User-facing label |
-| --- | --- |
-| `dashboard` | Beranda |
-| `history` | Riwayat |
-| `reports` | Laporan |
-| `settings` | Pengaturan |
-| `cash` | Tunai |
-| `qris` | QRIS |
-| `transfer` | Transfer |
-| `total_income` | Total pemasukan |
-| `net_difference` | Selisih |
-| `save` | Simpan |
-| `saving` | Menyimpan… |
+| Internal value   | User-facing label |
+| ---------------- | ----------------- |
+| `dashboard`      | Beranda           |
+| `history`        | Riwayat           |
+| `reports`        | Laporan           |
+| `settings`       | Pengaturan        |
+| `cash`           | Tunai             |
+| `qris`           | QRIS              |
+| `transfer`       | Transfer          |
+| `total_income`   | Total pemasukan   |
+| `net_difference` | Selisih           |
+| `save`           | Simpan            |
+| `saving`         | Menyimpan…        |
 
 - Keep API keys and stable error codes English. Translate display messages; never render internal enum values or exception strings directly.
 - API validation fields stay English, but their human-readable messages are Indonesian. Localize Laravel attribute names so users see “Harga wajib diisi,” not “The unit price field is required.”

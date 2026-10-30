@@ -58,8 +58,8 @@ Koreksi/hapus pencatatan hanya memperbaiki catatan. Tindakan tersebut tidak meng
 
 ## 5. Pengguna dan skenario
 
-| Pengguna | Kebutuhan | Hak akses |
-| --- | --- | --- |
+| Pengguna                 | Kebutuhan                                                           | Hak akses                    |
+| ------------------------ | ------------------------------------------------------------------- | ---------------------------- |
 | Pemilik yang juga barber | Mencatat pemasukan/pengeluaran dengan cepat dan melihat hasil usaha | Semua fitur untuk satu usaha |
 
 Skenario utama:
@@ -113,20 +113,20 @@ Pilih Hari ini, Bulan ini, atau rentang tanggal → lihat total dan rincian → 
 
 ## 7. Kebutuhan fungsional
 
-| ID | Kebutuhan | Kriteria penerimaan |
-| --- | --- | --- |
-| FR-01 | Autentikasi | Pengguna tanpa login tidak dapat membaca atau mengubah data; logout mobile mencabut token perangkat aktif |
-| FR-02 | Kelola layanan | Tambah/edit nama dan harga, nonaktifkan layanan; layanan nonaktif tidak bisa dipilih untuk transaksi baru |
-| FR-03 | Tambah pemasukan | Minimal satu layanan, kuantitas integer positif default 1, harga integer minimal 0, total transaksi lebih dari 0; server menghitung total |
-| FR-04 | Tambah pengeluaran | Keterangan wajib, nominal integer lebih dari 0, tanggal dan metode pembayaran valid |
-| FR-05 | Riwayat | Menampilkan pemasukan/pengeluaran terbaru, paginasi, filter jenis dan tanggal, akses detail |
-| FR-06 | Koreksi | Edit memperbarui laporan; hapus memerlukan konfirmasi dan tidak menghilangkan jejak internal |
-| FR-07 | Ringkasan | Menampilkan pemasukan, jumlah transaksi, pengeluaran, dan selisih hari ini dalam WIB |
-| FR-08 | Laporan | Total sesuai catatan aktif pada periode; rincian metode pembayaran serta layanan konsisten dengan total |
-| FR-09 | Ekspor | CSV UTF-8 sesuai filter, berisi tanggal, jenis, nomor referensi, keterangan, metode, pemasukan dan pengeluaran |
-| FR-10 | Pengaturan | Nama usaha, layanan default, ubah kata sandi; zona waktu MVP tetap Asia/Jakarta |
-| FR-11 | Konsistensi platform | Data yang dibuat di web tersedia setelah refresh di mobile, dan sebaliknya |
-| FR-12 | Pencegahan duplikasi | Retry create dengan key dan payload sama menghasilkan record yang sama, bukan tambahan baru |
+| ID    | Kebutuhan            | Kriteria penerimaan                                                                                                                       |
+| ----- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| FR-01 | Autentikasi          | Pengguna tanpa login tidak dapat membaca atau mengubah data; logout mobile mencabut token perangkat aktif                                 |
+| FR-02 | Kelola layanan       | Tambah/edit nama dan harga, nonaktifkan layanan; layanan nonaktif tidak bisa dipilih untuk transaksi baru                                 |
+| FR-03 | Tambah pemasukan     | Minimal satu layanan, kuantitas integer positif default 1, harga integer minimal 0, total transaksi lebih dari 0; server menghitung total |
+| FR-04 | Tambah pengeluaran   | Keterangan wajib, nominal integer lebih dari 0, tanggal dan metode pembayaran valid                                                       |
+| FR-05 | Riwayat              | Menampilkan pemasukan/pengeluaran terbaru, paginasi, filter jenis dan tanggal, akses detail                                               |
+| FR-06 | Koreksi              | Edit memperbarui laporan; hapus memerlukan konfirmasi dan tidak menghilangkan jejak internal                                              |
+| FR-07 | Ringkasan            | Menampilkan pemasukan, jumlah transaksi, pengeluaran, dan selisih hari ini dalam WIB                                                      |
+| FR-08 | Laporan              | Total sesuai catatan aktif pada periode; rincian metode pembayaran serta layanan konsisten dengan total                                   |
+| FR-09 | Ekspor               | CSV UTF-8 sesuai filter, berisi tanggal, jenis, nomor referensi, keterangan, metode, pemasukan dan pengeluaran                            |
+| FR-10 | Pengaturan           | Nama usaha, layanan default, ubah kata sandi; zona waktu MVP tetap Asia/Jakarta                                                           |
+| FR-11 | Konsistensi platform | Data yang dibuat di web tersedia setelah refresh di mobile, dan sebaliknya                                                                |
+| FR-12 | Pencegahan duplikasi | Retry create dengan key dan payload sama menghasilkan record yang sama, bukan tambahan baru                                               |
 
 ## 8. Menu dan kebutuhan tampilan
 
@@ -175,22 +175,22 @@ Contoh penerimaan: 10 transaksi masing-masing Rp25.000 dan pengeluaran Rp30.000 
 
 ## 10. Stack dan keputusan versi
 
-| Lapisan | Pilihan |
-| --- | --- |
-| Backend | Laravel 13.x |
-| Runtime | PHP 8.5, patch stabil terbaru; hasil pengecekan 30 Oktober 2026: PHP 8.5.12 |
-| Web | Inertia.js + React + TypeScript, mengikuti kombinasi kompatibel starter kit resmi Laravel |
-| UI web | Tailwind CSS + shadcn/ui |
-| Mobile | React Native + TypeScript, Expo sebagai pilihan implementasi |
-| Navigasi mobile | Expo Router |
-| Data mobile | TanStack Query dan HTTP client fetch/axios |
-| Penyimpanan token mobile | Expo SecureStore |
-| Database | PostgreSQL; versi stabil yang didukung dipilih dan dikunci saat implementasi |
-| ORM | Eloquent |
-| Autentikasi web | Session cookie Laravel dengan proteksi CSRF |
-| Autentikasi mobile | Laravel Sanctum personal access token |
-| Pengujian | PHPUnit/Pest; React Native Testing Library; smoke test perangkat Android |
-| Deployment | Docker, Nginx, PHP-FPM, PostgreSQL; dapat dikelola melalui Dokploy |
+| Lapisan                  | Pilihan                                                                                   |
+| ------------------------ | ----------------------------------------------------------------------------------------- |
+| Backend                  | Laravel 13.x                                                                              |
+| Runtime                  | PHP 8.5, patch stabil terbaru; hasil pengecekan 30 Oktober 2026: PHP 8.5.12               |
+| Web                      | Inertia.js + React + TypeScript, mengikuti kombinasi kompatibel starter kit resmi Laravel |
+| UI web                   | Tailwind CSS + shadcn/ui                                                                  |
+| Mobile                   | React Native + TypeScript, Expo sebagai pilihan implementasi                              |
+| Navigasi mobile          | Expo Router                                                                               |
+| Data mobile              | TanStack Query dan HTTP client fetch/axios                                                |
+| Penyimpanan token mobile | Expo SecureStore                                                                          |
+| Database                 | PostgreSQL; versi stabil yang didukung dipilih dan dikunci saat implementasi              |
+| ORM                      | Eloquent                                                                                  |
+| Autentikasi web          | Session cookie Laravel dengan proteksi CSRF                                               |
+| Autentikasi mobile       | Laravel Sanctum personal access token                                                     |
+| Pengujian                | PHPUnit/Pest; React Native Testing Library; smoke test perangkat Android                  |
+| Deployment               | Docker, Nginx, PHP-FPM, PostgreSQL; dapat dikelola melalui Dokploy                        |
 
 Laravel 13 mendukung PHP 8.3–8.5 menurut dokumentasi resminya. Jangan memakai versi beta/RC untuk production. Pin patch runtime yang dipakai dalam konfigurasi build dan commit lockfile. Saat implementasi, pilih Expo SDK stabil lalu ikuti versi React Native/React yang didukung SDK tersebut; jangan memaksa versi terbaru masing-masing secara terpisah. React web dan React Native tidak harus memakai versi React yang sama.
 
@@ -220,18 +220,18 @@ Struktur kode usulan: Laravel berada di `backend/`, termasuk React web di `backe
 
 Semua tabel bisnis memakai primary key bigint, timestamps UTC, dan foreign key sesuai relasi. Nominal disimpan BIGINT rupiah, bukan float. API membatasi nominal dan total maksimal Rp999.999.999 per catatan agar aman untuk UI JavaScript.
 
-| Tabel | Kolom utama |
-| --- | --- |
-| users | id, name, email unique, password, timestamps |
-| shop_settings | id singleton, name, timezone, currency, default_service_id nullable |
-| services | id, name, price, is_active, timestamps |
-| transactions | id, reference unique, occurred_at, payment_method, total_amount, note nullable, created_by, version default 1, deleted_at nullable, timestamps |
-| transaction_items | id, transaction_id, service_id, service_name_snapshot, unit_price, quantity, line_total, timestamps |
-| expenses | id, reference unique, occurred_at, description, category nullable, amount, payment_method, created_by, version default 1, deleted_at nullable, timestamps |
-| audit_logs | id, user_id, entity_type, entity_id, action, before_json nullable, after_json nullable, created_at |
-| idempotency_requests | id, user_id, operation, key, request_hash, resource_type, resource_id, created_at |
-| personal_access_tokens | Struktur bawaan Sanctum untuk token perangkat |
-| sessions / password_reset_tokens | Struktur pendukung autentikasi Laravel |
+| Tabel                            | Kolom utama                                                                                                                                               |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| users                            | id, name, email unique, password, timestamps                                                                                                              |
+| shop_settings                    | id singleton, name, timezone, currency, default_service_id nullable                                                                                       |
+| services                         | id, name, price, is_active, timestamps                                                                                                                    |
+| transactions                     | id, reference unique, occurred_at, payment_method, total_amount, note nullable, created_by, version default 1, deleted_at nullable, timestamps            |
+| transaction_items                | id, transaction_id, service_id, service_name_snapshot, unit_price, quantity, line_total, timestamps                                                       |
+| expenses                         | id, reference unique, occurred_at, description, category nullable, amount, payment_method, created_by, version default 1, deleted_at nullable, timestamps |
+| audit_logs                       | id, user_id, entity_type, entity_id, action, before_json nullable, after_json nullable, created_at                                                        |
+| idempotency_requests             | id, user_id, operation, key, request_hash, resource_type, resource_id, created_at                                                                         |
+| personal_access_tokens           | Struktur bawaan Sanctum untuk token perangkat                                                                                                             |
+| sessions / password_reset_tokens | Struktur pendukung autentikasi Laravel                                                                                                                    |
 
 Relasi: transaksi memiliki banyak item; item menunjuk master layanan dan menyimpan snapshot. services dinonaktifkan, bukan dihapus permanen jika sudah digunakan. Audit tidak dapat diedit melalui UI.
 
@@ -243,24 +243,24 @@ Tidak perlu tabel pelanggan, barber, booking, shift, atau komisi pada MVP.
 
 Prefix: `/api/v1`. Selain login dan pemulihan sandi, semua endpoint membutuhkan Bearer token Sanctum.
 
-| Method | Endpoint | Fungsi |
-| --- | --- | --- |
-| POST | /auth/login | Email, password, device_name; mengembalikan token |
-| POST | /auth/logout | Mencabut token saat ini |
-| GET | /auth/me | Informasi pemilik |
-| POST | /auth/forgot-password | Kirim tautan pemulihan; respons generik |
-| PUT | /auth/password | Ubah sandi dengan current_password; cabut token lain |
-| GET | /dashboard | Ringkasan hari ini |
-| GET/POST | /services | Daftar dan tambah layanan |
-| PUT | /services/{id} | Edit harga/nama atau status aktif |
-| GET/POST | /transactions | Daftar dan tambah pemasukan |
-| GET/PUT/DELETE | /transactions/{id} | Detail, edit, soft delete |
-| GET/POST | /expenses | Daftar dan tambah pengeluaran |
-| GET/PUT/DELETE | /expenses/{id} | Detail, edit, soft delete |
-| GET | /history | Daftar gabungan pemasukan/pengeluaran |
-| GET | /reports/summary | Total dan rincian periode |
-| GET | /reports/export | CSV sesuai periode dan jenis |
-| GET/PUT | /settings | Baca/ubah pengaturan usaha |
+| Method         | Endpoint              | Fungsi                                               |
+| -------------- | --------------------- | ---------------------------------------------------- |
+| POST           | /auth/login           | Email, password, device_name; mengembalikan token    |
+| POST           | /auth/logout          | Mencabut token saat ini                              |
+| GET            | /auth/me              | Informasi pemilik                                    |
+| POST           | /auth/forgot-password | Kirim tautan pemulihan; respons generik              |
+| PUT            | /auth/password        | Ubah sandi dengan current_password; cabut token lain |
+| GET            | /dashboard            | Ringkasan hari ini                                   |
+| GET/POST       | /services             | Daftar dan tambah layanan                            |
+| PUT            | /services/{id}        | Edit harga/nama atau status aktif                    |
+| GET/POST       | /transactions         | Daftar dan tambah pemasukan                          |
+| GET/PUT/DELETE | /transactions/{id}    | Detail, edit, soft delete                            |
+| GET/POST       | /expenses             | Daftar dan tambah pengeluaran                        |
+| GET/PUT/DELETE | /expenses/{id}        | Detail, edit, soft delete                            |
+| GET            | /history              | Daftar gabungan pemasukan/pengeluaran                |
+| GET            | /reports/summary      | Total dan rincian periode                            |
+| GET            | /reports/export       | CSV sesuai periode dan jenis                         |
+| GET/PUT        | /settings             | Baca/ubah pengaturan usaha                           |
 
 Pemulihan sandi membuka halaman reset web Laravel dari tautan email, sehingga tidak memerlukan form reset native. SMTP harus disiapkan; command reset admin tersedia sebagai prosedur pemulihan instalasi.
 
@@ -270,10 +270,10 @@ Contoh payload create transaksi:
 
 ```json
 {
-  "occurred_at": "2026-10-30T09:00:00+07:00",
-  "payment_method": "cash",
-  "items": [{"service_id": 1, "quantity": 1, "unit_price": 25000}],
-  "note": null
+    "occurred_at": "2026-10-30T09:00:00+07:00",
+    "payment_method": "cash",
+    "items": [{ "service_id": 1, "quantity": 1, "unit_price": 25000 }],
+    "note": null
 }
 ```
 
@@ -297,20 +297,20 @@ HTTP: 201 untuk create baru, 200 untuk baca/edit/replay, 204 untuk delete/logout
 
 ## 15. Pengujian dan penerimaan rilis
 
-| Skenario | Hasil wajib |
-| --- | --- |
-| Tambah 1 layanan Rp25.000 | Satu transaksi, total Rp25.000 |
-| Dua layanan Rp25.000 dan Rp10.000 | Satu transaksi dengan dua item, total Rp35.000 |
-| Harga layanan master berubah | Transaksi lama tetap memakai snapshot lama |
-| Double tap dan retry timeout | Satu record untuk idempotency key yang sama |
-| Dua perangkat edit bersamaan | Perubahan kedua dengan versi lama ditolak 409 |
-| Edit/hapus transaksi atau pengeluaran | Dashboard, laporan dan CSV konsisten; audit tersedia |
-| Transaksi pukul 00.05 WIB | Masuk hari lokal yang benar walau tanggal UTC berbeda |
-| Filter akhir bulan | Tidak kehilangan atau menggandakan data pada batas periode |
-| Data dibuat web lalu refresh mobile | Nilai dan rincian identik |
-| Akses tanpa token/session | Ditolak tanpa membocorkan data |
-| Offline/timeout | Tidak ada notifikasi sukses palsu; form tetap bisa dicoba ulang |
-| Restore backup | Aplikasi dan data bisnis kembali bisa digunakan |
+| Skenario                              | Hasil wajib                                                     |
+| ------------------------------------- | --------------------------------------------------------------- |
+| Tambah 1 layanan Rp25.000             | Satu transaksi, total Rp25.000                                  |
+| Dua layanan Rp25.000 dan Rp10.000     | Satu transaksi dengan dua item, total Rp35.000                  |
+| Harga layanan master berubah          | Transaksi lama tetap memakai snapshot lama                      |
+| Double tap dan retry timeout          | Satu record untuk idempotency key yang sama                     |
+| Dua perangkat edit bersamaan          | Perubahan kedua dengan versi lama ditolak 409                   |
+| Edit/hapus transaksi atau pengeluaran | Dashboard, laporan dan CSV konsisten; audit tersedia            |
+| Transaksi pukul 00.05 WIB             | Masuk hari lokal yang benar walau tanggal UTC berbeda           |
+| Filter akhir bulan                    | Tidak kehilangan atau menggandakan data pada batas periode      |
+| Data dibuat web lalu refresh mobile   | Nilai dan rincian identik                                       |
+| Akses tanpa token/session             | Ditolak tanpa membocorkan data                                  |
+| Offline/timeout                       | Tidak ada notifikasi sukses palsu; form tetap bisa dicoba ulang |
+| Restore backup                        | Aplikasi dan data bisnis kembali bisa digunakan                 |
 
 Rilis diterima setelah seluruh skenario kritis lulus, build web/mobile berhasil, migrasi pada database kosong berhasil, ekspor dapat dibuka, dan uji penggunaan menunjukkan alur pencatatan memenuhi target 15 detik.
 
@@ -318,13 +318,13 @@ Rilis diterima setelah seluruh skenario kritis lulus, build web/mobile berhasil,
 
 Estimasi awal 4–6 minggu untuk satu pengembang yang sudah memahami stack; bukan komitmen durasi. Estimasi mencakup web dan Android, belum termasuk proses publikasi app store.
 
-| Tahap | Perkiraan | Hasil |
-| --- | --- | --- |
-| 1. Fondasi | Minggu 1 | Setup Laravel/PHP, database, auth, pengaturan, layanan, kontrak API |
-| 2. Operasional web | Minggu 2 | Transaksi, pengeluaran, riwayat, audit, idempotensi |
-| 3. Laporan dan API | Minggu 3 | Ringkasan, laporan, CSV, API mobile dan pengujian aturan bisnis |
-| 4. Mobile | Minggu 4–5 | Login, empat menu, formulir, error/retry, ekspor dan berbagi file |
-| 5. Rilis | Minggu 6 atau lebih cepat | Uji perangkat, backup/restore, deployment dan uji penggunaan |
+| Tahap              | Perkiraan                 | Hasil                                                               |
+| ------------------ | ------------------------- | ------------------------------------------------------------------- |
+| 1. Fondasi         | Minggu 1                  | Setup Laravel/PHP, database, auth, pengaturan, layanan, kontrak API |
+| 2. Operasional web | Minggu 2                  | Transaksi, pengeluaran, riwayat, audit, idempotensi                 |
+| 3. Laporan dan API | Minggu 3                  | Ringkasan, laporan, CSV, API mobile dan pengujian aturan bisnis     |
+| 4. Mobile          | Minggu 4–5                | Login, empat menu, formulir, error/retry, ekspor dan berbagi file   |
+| 5. Rilis           | Minggu 6 atau lebih cepat | Uji perangkat, backup/restore, deployment dan uji penggunaan        |
 
 Prioritas ketika waktu terbatas: selesaikan web dan API dahulu; kemudian mobile memakai aturan bisnis yang sudah diuji. Ini merupakan urutan implementasi, bukan penghapusan mobile dari cakupan.
 
