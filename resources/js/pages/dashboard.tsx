@@ -2,19 +2,22 @@ import { Link } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import HistoryList from '@/components/HistoryList';
+import SummaryCards from '@/components/SummaryCards';
 import { buttonVariants } from '@/components/ui/button';
 import { id } from '@/locales/id';
 import { history } from '@/routes';
 import expenses from '@/routes/expenses';
 import transactions from '@/routes/transactions';
-import type { HistoryRow } from '@/types/records';
+import type { HistoryRow, ReportSummary } from '@/types/records';
 
 const todayLabel = new Intl.DateTimeFormat('id-ID', {
     dateStyle: 'full',
     timeZone: 'Asia/Jakarta',
 });
 
-export default function Dashboard({ recent }: { recent: HistoryRow[] }) {
+type DashboardProps = { summary: ReportSummary; recent: HistoryRow[] };
+
+export default function Dashboard({ summary, recent }: DashboardProps) {
     return (
         <AppLayout title={id.nav.dashboard}>
             <header>
@@ -23,6 +26,8 @@ export default function Dashboard({ recent }: { recent: HistoryRow[] }) {
                     {todayLabel.format(new Date())}
                 </p>
             </header>
+
+            <SummaryCards summary={summary} />
 
             <div className="grid gap-3 sm:grid-cols-2">
                 <Link

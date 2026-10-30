@@ -48,3 +48,24 @@ export type HistoryRow = {
     payment_method: PaymentMethod;
     summary: string;
 };
+
+export type ReportSummary = {
+    date_from: string;
+    date_to: string;
+    total_income: number;
+    transaction_count: number;
+    total_expense: number;
+    expense_count: number;
+    net_difference: number;
+    income_by_payment_method: {
+        payment_method: PaymentMethod;
+        total: number;
+        count: number;
+    }[];
+    income_by_service: {
+        service_id: number;
+        service_name: string;
+        quantity: number;
+        total: number;
+    }[];
+};

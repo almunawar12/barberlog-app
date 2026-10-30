@@ -32,6 +32,17 @@ class ListHistory
     }
 
     /**
+     * Every matching row, for exports.
+     *
+     * @param  array{date_from?: string|null, date_to?: string|null, type?: string|null}  $filters
+     * @return Collection<int, HistoryRow>
+     */
+    public function all(array $filters): Collection
+    {
+        return $this->withSummaries($this->query($filters)->get());
+    }
+
+    /**
      * @return Collection<int, HistoryRow>
      */
     public function recent(int $limit): Collection

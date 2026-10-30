@@ -30,7 +30,7 @@ class BusinessConflict extends RuntimeException
 
     public function render(Request $request): JsonResponse|RedirectResponse
     {
-        if ($request->expectsJson() && ! $request->header('X-Inertia')) {
+        if ($request->is('api/*') || ($request->expectsJson() && ! $request->header('X-Inertia'))) {
             return response()->json(['message' => $this->getMessage(), 'code' => $this->errorCode], 409);
         }
 

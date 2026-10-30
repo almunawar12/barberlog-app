@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TransactionController;
@@ -13,6 +14,8 @@ Route::redirect('/', '/dashboard')->name('home');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/history', [HistoryController::class, 'index'])->name('history');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 
     // destroy resolves soft-deleted records too, so repeating a delete stays a no-op instead of a 404.
     Route::resource('transactions', TransactionController::class)->except('index')->withTrashed(['destroy']);

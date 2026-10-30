@@ -26,7 +26,10 @@ class ShopSetting extends Model
      */
     public static function current(): self
     {
-        return self::firstOrCreate(['id' => 1], ['name' => config('app.name')]);
+        $shop = self::firstOrCreate(['id' => 1], ['name' => config('app.name')]);
+
+        // Column defaults (timezone, currency) are only known to the database after the insert.
+        return $shop->wasRecentlyCreated ? $shop->refresh() : $shop;
     }
 
     /**

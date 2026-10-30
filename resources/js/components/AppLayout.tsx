@@ -1,17 +1,17 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { History, House, LogOut, Settings } from 'lucide-react';
+import { ChartColumn, History, House, LogOut, Settings } from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { id } from '@/locales/id';
 import { cn } from '@/lib/utils';
-import { dashboard, history, logout } from '@/routes';
+import { dashboard, history, logout, reports } from '@/routes';
 import settings from '@/routes/settings';
 
-// Laporan is added to this list when its screen exists.
 const navItems = [
     { label: id.nav.dashboard, href: dashboard().url, icon: House },
     { label: id.nav.history, href: history().url, icon: History },
+    { label: id.nav.reports, href: reports().url, icon: ChartColumn },
     { label: id.nav.settings, href: settings.edit().url, icon: Settings },
 ];
 

@@ -113,3 +113,9 @@ it('paginates history', function () {
             ->where('history.last_page', 2)
             ->where('history.next_page_url', fn ($url) => str_contains($url, 'page=2')));
 });
+
+it('keeps web route names pointing at web URLs, not the API', function () {
+    expect(route('transactions.show', 1, absolute: false))->toBe('/transactions/1')
+        ->and(route('expenses.store', absolute: false))->toBe('/expenses')
+        ->and(route('api.v1.transactions.show', 1, absolute: false))->toBe('/api/v1/transactions/1');
+});

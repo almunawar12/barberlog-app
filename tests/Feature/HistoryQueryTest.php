@@ -1,46 +1,7 @@
 <?php
 
-use App\Models\Expense;
-use App\Models\Transaction;
-use App\Models\User;
 use App\Queries\History\ListHistory;
 use App\Support\JakartaPeriod;
-use Carbon\CarbonImmutable;
-
-function seedTransaction(string $occurredAt, int $total = 25000, ?string $name = 'Potong Rambut'): Transaction
-{
-    $service = makeService($name ?? 'Layanan', $total);
-    $transaction = Transaction::forceCreate([
-        'reference' => Transaction::nextReference(),
-        'occurred_at' => CarbonImmutable::parse($occurredAt)->utc(),
-        'payment_method' => 'cash',
-        'total_amount' => $total,
-        'created_by' => User::query()->first()?->id ?? User::factory()->create()->id,
-        'version' => 1,
-    ]);
-    $transaction->items()->create([
-        'service_id' => $service->id,
-        'service_name_snapshot' => $service->name,
-        'unit_price' => $total,
-        'quantity' => 1,
-        'line_total' => $total,
-    ]);
-
-    return $transaction;
-}
-
-function seedExpense(string $occurredAt, int $amount = 15000): Expense
-{
-    return Expense::forceCreate([
-        'reference' => Expense::nextReference(),
-        'occurred_at' => CarbonImmutable::parse($occurredAt)->utc(),
-        'description' => 'Silet',
-        'amount' => $amount,
-        'payment_method' => 'cash',
-        'created_by' => User::query()->first()?->id ?? User::factory()->create()->id,
-        'version' => 1,
-    ]);
-}
 
 describe('JakartaPeriod', function () {
     it('maps Jakarta calendar dates to UTC bounds with an exclusive end', function () {

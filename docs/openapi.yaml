@@ -1,0 +1,837 @@
+openapi: 3.0.3
+info:
+    title: BarberLog API
+    version: 1.0.0
+    description: |
+        JSON API for the BarberLog mobile app. Every endpoint below is implemented.
+
+        - Auth: `Authorization: Bearer <token>` (Laravel Sanctum personal access token, valid 30 days).
+        - Money: integer rupiah. Maximum Rp999.999.999 per record.
+        - Time: ISO 8601 with offset or UTC in the API; reports use Asia/Jakarta calendar dates (`YYYY-MM-DD`).
+        - Field names and error `code` values are English; `message` texts are Indonesian.
+        - Creating a transaction or expense needs an `Idempotency-Key` (UUID). Retry an uncertain request with the same key and body.
+        - Update and delete need `expected_version`; a stale version answers 409.
+servers:
+    - url: /api/v1
+security:
+    - bearerAuth: []
+
+paths:
+    /auth/login:
+        post:
+            summary: Sign in and receive a device token
+            security: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [email, password, device_name]
+                            properties:
+                                email: { type: string, format: email }
+                                password: { type: string }
+                                device_name: { type: string, maxLength: 100 }
+            responses:
+                '200':
+                    description: Signed in
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: object
+                                        properties:
+                                            token: { type: string }
+                                            expires_at:
+                                                {
+                                                    type: string,
+                                                    format: date-time,
+                                                }
+                                            user:
+                                                {
+                                                    $ref: '#/components/schemas/User',
+                                                }
+                '422': { $ref: '#/components/responses/ValidationError' }
+                '429': { $ref: '#/components/responses/TooManyRequests' }
+    /auth/logout:
+        post:
+            summary: Revoke the current device token
+            responses:
+                '204': { description: 'Token revoked' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+    /auth/me:
+        get:
+            summary: The signed-in owner
+            responses:
+                '200':
+                    description: Owner
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data: { $ref: '#/components/schemas/User' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+    /auth/forgot-password:
+        post:
+            summary: Email a password reset link (opens the web reset page)
+            description: Always answers 200 with the same message, whether or not the email is registered.
+            security: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [email]
+                            properties:
+                                email: { type: string, format: email }
+            responses:
+                '200':
+                    description: Generic acknowledgement
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message: { type: string }
+                '422': { $ref: '#/components/responses/ValidationError' }
+                '429': { $ref: '#/components/responses/TooManyRequests' }
+    /auth/password:
+        put:
+            summary: Change password
+            description: Keeps this device's token; revokes every other token and all web sessions.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                [
+                                    current_password,
+                                    password,
+                                    password_confirmation,
+                                ]
+                            properties:
+                                current_password: { type: string }
+                                password: { type: string }
+                                password_confirmation: { type: string }
+            responses:
+                '204': { description: 'Password changed' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+
+    /dashboard:
+        get:
+            summary: Today's summary (Asia/Jakarta) and the five latest records
+            responses:
+                '200':
+                    description: Dashboard
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: object
+                                        properties:
+                                            summary:
+                                                {
+                                                    $ref: '#/components/schemas/Summary',
+                                                }
+                                            recent:
+                                                type: array
+                                                items:
+                                                    {
+                                                        $ref: '#/components/schemas/HistoryRow',
+                                                    }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+
+    /services:
+        get:
+            summary: All services, including inactive ones
+            responses:
+                '200':
+                    description: Services
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            {
+                                                $ref: '#/components/schemas/Service',
+                                            }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+        post:
+            summary: Add a service
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema: { $ref: '#/components/schemas/ServiceInput' }
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        { $ref: '#/components/schemas/Service' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+    /services/{id}:
+        put:
+            summary: Edit a service or deactivate it
+            description: Past transactions keep their snapshot. Deactivating the default service clears the default.
+            parameters:
+                - {
+                      name: id,
+                      in: path,
+                      required: true,
+                      schema: { type: integer },
+                  }
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema: { $ref: '#/components/schemas/ServiceInput' }
+            responses:
+                '200':
+                    description: Updated
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        { $ref: '#/components/schemas/Service' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '404': { $ref: '#/components/responses/NotFound' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+
+    /transactions:
+        get:
+            summary: Income records, newest first
+            parameters:
+                - { $ref: '#/components/parameters/DateFrom' }
+                - { $ref: '#/components/parameters/DateTo' }
+                - { $ref: '#/components/parameters/Page' }
+                - { $ref: '#/components/parameters/PerPage' }
+            responses:
+                '200':
+                    description: Page of transactions
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            {
+                                                $ref: '#/components/schemas/Transaction',
+                                            }
+                                    meta:
+                                        {
+                                            $ref: '#/components/schemas/PageMeta',
+                                        }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+        post:
+            summary: Record a paid visit
+            description: |
+                The server recalculates every total. Retrying with the same `Idempotency-Key` and body
+                returns the original record (200); the same key with a different body answers 409
+                `idempotency_key_conflict`.
+            parameters:
+                - { $ref: '#/components/parameters/IdempotencyKey' }
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            { $ref: '#/components/schemas/TransactionInput' }
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                {
+                                    $ref: '#/components/schemas/TransactionResponse',
+                                }
+                '200':
+                    description: Replay of an earlier request with the same key
+                    content:
+                        application/json:
+                            schema:
+                                {
+                                    $ref: '#/components/schemas/TransactionResponse',
+                                }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '409': { $ref: '#/components/responses/Conflict' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+    /transactions/{id}:
+        parameters:
+            - { name: id, in: path, required: true, schema: { type: integer } }
+        get:
+            summary: Transaction detail
+            responses:
+                '200':
+                    description: Transaction
+                    content:
+                        application/json:
+                            schema:
+                                {
+                                    $ref: '#/components/schemas/TransactionResponse',
+                                }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '404': { $ref: '#/components/responses/NotFound' }
+        put:
+            summary: Correct a transaction
+            description: Retained services keep their original name snapshot; newly added services are snapshotted now and must be active.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            allOf:
+                                - {
+                                      $ref: '#/components/schemas/TransactionInput',
+                                  }
+                                - {
+                                      $ref: '#/components/schemas/ExpectedVersion',
+                                  }
+            responses:
+                '200':
+                    description: Updated (version incremented)
+                    content:
+                        application/json:
+                            schema:
+                                {
+                                    $ref: '#/components/schemas/TransactionResponse',
+                                }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '404': { $ref: '#/components/responses/NotFound' }
+                '409': { $ref: '#/components/responses/Conflict' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+        delete:
+            summary: Soft delete (corrects the record; no payment is refunded)
+            description: Repeating the delete answers 204 without a second audit entry.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema: { $ref: '#/components/schemas/ExpectedVersion' }
+            responses:
+                '204': { description: 'Deleted' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '409': { $ref: '#/components/responses/Conflict' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+
+    /expenses:
+        get:
+            summary: Expenses, newest first
+            parameters:
+                - { $ref: '#/components/parameters/DateFrom' }
+                - { $ref: '#/components/parameters/DateTo' }
+                - { $ref: '#/components/parameters/Page' }
+                - { $ref: '#/components/parameters/PerPage' }
+            responses:
+                '200':
+                    description: Page of expenses
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            {
+                                                $ref: '#/components/schemas/Expense',
+                                            }
+                                    meta:
+                                        {
+                                            $ref: '#/components/schemas/PageMeta',
+                                        }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+        post:
+            summary: Record an expense
+            description: Same idempotency rules as creating a transaction.
+            parameters:
+                - { $ref: '#/components/parameters/IdempotencyKey' }
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema: { $ref: '#/components/schemas/ExpenseInput' }
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                { $ref: '#/components/schemas/ExpenseResponse' }
+                '200':
+                    description: Replay of an earlier request with the same key
+                    content:
+                        application/json:
+                            schema:
+                                { $ref: '#/components/schemas/ExpenseResponse' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '409': { $ref: '#/components/responses/Conflict' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+    /expenses/{id}:
+        parameters:
+            - { name: id, in: path, required: true, schema: { type: integer } }
+        get:
+            summary: Expense detail
+            responses:
+                '200':
+                    description: Expense
+                    content:
+                        application/json:
+                            schema:
+                                { $ref: '#/components/schemas/ExpenseResponse' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '404': { $ref: '#/components/responses/NotFound' }
+        put:
+            summary: Correct an expense
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            allOf:
+                                - { $ref: '#/components/schemas/ExpenseInput' }
+                                - {
+                                      $ref: '#/components/schemas/ExpectedVersion',
+                                  }
+            responses:
+                '200':
+                    description: Updated (version incremented)
+                    content:
+                        application/json:
+                            schema:
+                                { $ref: '#/components/schemas/ExpenseResponse' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '404': { $ref: '#/components/responses/NotFound' }
+                '409': { $ref: '#/components/responses/Conflict' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+        delete:
+            summary: Soft delete an expense
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema: { $ref: '#/components/schemas/ExpectedVersion' }
+            responses:
+                '204': { description: 'Deleted' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '409': { $ref: '#/components/responses/Conflict' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+
+    /history:
+        get:
+            summary: Active transactions and expenses together, newest first
+            parameters:
+                - { $ref: '#/components/parameters/DateFrom' }
+                - { $ref: '#/components/parameters/DateTo' }
+                - name: type
+                  in: query
+                  schema: { type: string, enum: [transaction, expense] }
+                - { $ref: '#/components/parameters/Page' }
+                - { $ref: '#/components/parameters/PerPage' }
+            responses:
+                '200':
+                    description: Page of history rows
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            {
+                                                $ref: '#/components/schemas/HistoryRow',
+                                            }
+                                    meta:
+                                        {
+                                            $ref: '#/components/schemas/PageMeta',
+                                        }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+
+    /reports/summary:
+        get:
+            summary: Totals and breakdowns for a Jakarta date range
+            description: Dates default to today. The range is inclusive of `date_to` (Asia/Jakarta days).
+            parameters:
+                - { $ref: '#/components/parameters/DateFrom' }
+                - { $ref: '#/components/parameters/DateTo' }
+            responses:
+                '200':
+                    description: Summary
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        { $ref: '#/components/schemas/Summary' }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+    /reports/export:
+        get:
+            summary: CSV export (UTF-8 with BOM), one row per transaction or expense, oldest first
+            parameters:
+                - { $ref: '#/components/parameters/DateFrom' }
+                - { $ref: '#/components/parameters/DateTo' }
+                - name: type
+                  in: query
+                  schema: { type: string, enum: [transaction, expense] }
+            responses:
+                '200':
+                    description: CSV file
+                    content:
+                        text/csv:
+                            schema: { type: string }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+
+    /settings:
+        get:
+            summary: Shop settings
+            responses:
+                '200':
+                    description: Settings
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        {
+                                            $ref: '#/components/schemas/Settings',
+                                        }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+        put:
+            summary: Update shop name and default service
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [name]
+                            properties:
+                                name: { type: string, maxLength: 100 }
+                                default_service_id:
+                                    type: integer
+                                    nullable: true
+                                    description: Must be an active service.
+            responses:
+                '200':
+                    description: Updated
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        {
+                                            $ref: '#/components/schemas/Settings',
+                                        }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '422': { $ref: '#/components/responses/ValidationError' }
+
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+
+    parameters:
+        IdempotencyKey:
+            name: Idempotency-Key
+            in: header
+            required: true
+            schema: { type: string, format: uuid }
+            description: Generate once per logical submission and reuse it when retrying.
+        DateFrom:
+            name: date_from
+            in: query
+            schema: { type: string, format: date, example: '2026-10-01' }
+        DateTo:
+            name: date_to
+            in: query
+            schema: { type: string, format: date, example: '2026-10-31' }
+            description: On or after `date_from`.
+        Page:
+            name: page
+            in: query
+            schema: { type: integer, minimum: 1 }
+        PerPage:
+            name: per_page
+            in: query
+            schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+
+    responses:
+        Unauthenticated:
+            description: Missing, invalid or expired token
+            content:
+                application/json:
+                    schema: { $ref: '#/components/schemas/Error' }
+        NotFound:
+            description: Record not found (or soft deleted)
+            content:
+                application/json:
+                    schema: { $ref: '#/components/schemas/Error' }
+        ValidationError:
+            description: Validation failed
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message: { type: string }
+                            errors:
+                                type: object
+                                additionalProperties:
+                                    type: array
+                                    items: { type: string }
+        Conflict:
+            description: |
+                `version_conflict` - the record changed since `expected_version`; reload and retry.
+                `idempotency_key_conflict` - the key was used with a different body.
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message: { type: string }
+                            code:
+                                {
+                                    type: string,
+                                    enum:
+                                        [
+                                            version_conflict,
+                                            idempotency_key_conflict,
+                                        ],
+                                }
+        TooManyRequests:
+            description: Rate limit exceeded
+            content:
+                application/json:
+                    schema: { $ref: '#/components/schemas/Error' }
+
+    schemas:
+        Error:
+            type: object
+            properties:
+                message: { type: string }
+        User:
+            type: object
+            properties:
+                id: { type: integer }
+                name: { type: string }
+                email: { type: string, format: email }
+        PaymentMethod:
+            type: string
+            enum: [cash, qris, transfer]
+        PageMeta:
+            type: object
+            properties:
+                current_page: { type: integer }
+                last_page: { type: integer }
+                per_page: { type: integer }
+                total: { type: integer }
+        ExpectedVersion:
+            type: object
+            required: [expected_version]
+            properties:
+                expected_version: { type: integer, minimum: 1 }
+        Service:
+            type: object
+            properties:
+                id: { type: integer }
+                name: { type: string }
+                price: { type: integer }
+                is_active: { type: boolean }
+        ServiceInput:
+            type: object
+            required: [name, price]
+            properties:
+                name: { type: string, maxLength: 100 }
+                price: { type: integer, minimum: 0, maximum: 999999999 }
+                is_active: { type: boolean }
+        Settings:
+            type: object
+            properties:
+                name: { type: string }
+                timezone: { type: string, example: Asia/Jakarta }
+                currency: { type: string, example: IDR }
+                default_service_id: { type: integer, nullable: true }
+        TransactionItem:
+            type: object
+            properties:
+                id: { type: integer }
+                service_id: { type: integer }
+                service_name:
+                    {
+                        type: string,
+                        description: 'Name snapshot at the time of the sale',
+                    }
+                unit_price:
+                    { type: integer, description: 'Actual price charged' }
+                quantity: { type: integer }
+                line_total: { type: integer }
+        Transaction:
+            type: object
+            properties:
+                id: { type: integer }
+                reference: { type: string, example: TRX-000001 }
+                occurred_at: { type: string, format: date-time }
+                payment_method: { $ref: '#/components/schemas/PaymentMethod' }
+                total_amount: { type: integer }
+                note: { type: string, nullable: true }
+                version: { type: integer }
+                deleted_at: { type: string, format: date-time, nullable: true }
+                items:
+                    type: array
+                    items: { $ref: '#/components/schemas/TransactionItem' }
+        TransactionResponse:
+            type: object
+            properties:
+                data: { $ref: '#/components/schemas/Transaction' }
+        TransactionInput:
+            type: object
+            required: [occurred_at, payment_method, items]
+            properties:
+                occurred_at:
+                    type: string
+                    format: date-time
+                    description: Not in the future.
+                    example: '2026-10-30T09:00:00+07:00'
+                payment_method: { $ref: '#/components/schemas/PaymentMethod' }
+                items:
+                    type: array
+                    minItems: 1
+                    maxItems: 20
+                    description: Distinct services. The server computes line and transaction totals (total must be 1 to 999999999).
+                    items:
+                        type: object
+                        required: [service_id, quantity, unit_price]
+                        properties:
+                            service_id: { type: integer }
+                            quantity:
+                                { type: integer, minimum: 1, maximum: 1000 }
+                            unit_price:
+                                {
+                                    type: integer,
+                                    minimum: 0,
+                                    maximum: 999999999,
+                                }
+                note: { type: string, nullable: true, maxLength: 500 }
+        Expense:
+            type: object
+            properties:
+                id: { type: integer }
+                reference: { type: string, example: EXP-000001 }
+                occurred_at: { type: string, format: date-time }
+                description: { type: string }
+                category:
+                    {
+                        type: string,
+                        nullable: true,
+                        enum: [supplies, utilities, rent, other],
+                    }
+                amount: { type: integer }
+                payment_method: { $ref: '#/components/schemas/PaymentMethod' }
+                version: { type: integer }
+                deleted_at: { type: string, format: date-time, nullable: true }
+        ExpenseResponse:
+            type: object
+            properties:
+                data: { $ref: '#/components/schemas/Expense' }
+        ExpenseInput:
+            type: object
+            required: [occurred_at, description, amount, payment_method]
+            properties:
+                occurred_at:
+                    {
+                        type: string,
+                        format: date-time,
+                        description: 'Not in the future.',
+                    }
+                description: { type: string, maxLength: 255 }
+                category:
+                    {
+                        type: string,
+                        nullable: true,
+                        enum: [supplies, utilities, rent, other],
+                    }
+                amount: { type: integer, minimum: 1, maximum: 999999999 }
+                payment_method: { $ref: '#/components/schemas/PaymentMethod' }
+        HistoryRow:
+            type: object
+            properties:
+                type: { type: string, enum: [transaction, expense] }
+                id: { type: integer }
+                reference: { type: string }
+                occurred_at: { type: string, format: date-time }
+                amount: { type: integer }
+                payment_method: { $ref: '#/components/schemas/PaymentMethod' }
+                summary:
+                    {
+                        type: string,
+                        description: 'Service names for a transaction, the description for an expense',
+                    }
+        Summary:
+            type: object
+            properties:
+                date_from: { type: string, format: date }
+                date_to: { type: string, format: date }
+                total_income: { type: integer }
+                transaction_count:
+                    {
+                        type: integer,
+                        description: 'Number of transaction records, not services or customers',
+                    }
+                total_expense: { type: integer }
+                expense_count: { type: integer }
+                net_difference:
+                    {
+                        type: integer,
+                        description: 'total_income minus total_expense (shown as "Selisih")',
+                    }
+                income_by_payment_method:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            payment_method:
+                                { $ref: '#/components/schemas/PaymentMethod' }
+                            total: { type: integer }
+                            count: { type: integer }
+                income_by_service:
+                    type: array
+                    description: Best sellers first, ordered by quantity of services sold
+                    items:
+                        type: object
+                        properties:
+                            service_id: { type: integer }
+                            service_name: { type: string }
+                            quantity: { type: integer }
+                            total: { type: integer }

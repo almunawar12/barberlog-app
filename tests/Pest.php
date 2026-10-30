@@ -1,6 +1,10 @@
 <?php
 
+use App\Models\Expense;
 use App\Models\Service;
+use App\Models\Transaction;
+use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +40,41 @@ function transactionPayload(Service $service, array $overrides = []): array
         'note' => null,
         'idempotency_key' => (string) Str::uuid(),
     ], $overrides);
+}
+
+function seedTransaction(string $occurredAt, int $total = 25000, ?string $name = 'Potong Rambut', string $method = 'cash'): Transaction
+{
+    $service = Service::query()->where('name', $name)->first() ?? makeService($name ?? 'Layanan', $total);
+    $transaction = Transaction::forceCreate([
+        'reference' => Transaction::nextReference(),
+        'occurred_at' => CarbonImmutable::parse($occurredAt)->utc(),
+        'payment_method' => $method,
+        'total_amount' => $total,
+        'created_by' => User::query()->first()?->id ?? User::factory()->create()->id,
+        'version' => 1,
+    ]);
+    $transaction->items()->create([
+        'service_id' => $service->id,
+        'service_name_snapshot' => $service->name,
+        'unit_price' => $total,
+        'quantity' => 1,
+        'line_total' => $total,
+    ]);
+
+    return $transaction;
+}
+
+function seedExpense(string $occurredAt, int $amount = 15000, string $description = 'Silet', string $method = 'cash'): Expense
+{
+    return Expense::forceCreate([
+        'reference' => Expense::nextReference(),
+        'occurred_at' => CarbonImmutable::parse($occurredAt)->utc(),
+        'description' => $description,
+        'amount' => $amount,
+        'payment_method' => $method,
+        'created_by' => User::query()->first()?->id ?? User::factory()->create()->id,
+        'version' => 1,
+    ]);
 }
 
 /**

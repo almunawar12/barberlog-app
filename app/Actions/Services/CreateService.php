@@ -11,6 +11,6 @@ class CreateService
      */
     public function handle(array $data): Service
     {
-        return Service::create($data);
+        return Service::create([...$data, 'is_active' => $data['is_active'] ?? true]);
     }
 }
