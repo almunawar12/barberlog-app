@@ -10,8 +10,7 @@ import { router } from 'expo-router';
 
 jest.mock('expo-router', () => ({
   router: { replace: jest.fn(), back: jest.fn(), push: jest.fn() },
-  useNavigation: () => ({ dispatch: jest.fn() }),
-  usePreventRemove: jest.fn(),
+  usePreventRemove: jest.fn(() => jest.fn()),
 }));
 jest.mock('expo-crypto', () => ({ randomUUID: () => '11111111-1111-4111-8111-111111111111' }));
 jest.mock('@react-native-community/datetimepicker', () => ({ DateTimePickerAndroid: { open: jest.fn() } }));

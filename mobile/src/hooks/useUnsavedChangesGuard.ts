@@ -1,5 +1,4 @@
-import { useNavigation, usePreventRemove } from 'expo-router';
-import { useRef } from 'react';
+import { usePreventRemove } from 'expo-router';
 import { Alert } from 'react-native';
 
 import { id } from '@/locales/id';
@@ -9,25 +8,14 @@ import { id } from '@/locales/id';
  * confirmed save so leaving the screen is not mistaken for abandoning edits.
  */
 export function useUnsavedChangesGuard(isDirty: boolean) {
-  const navigation = useNavigation();
-  const allowed = useRef(false);
-
-  usePreventRemove(isDirty, ({ data }) => {
-    if (allowed.current) {
-      navigation.dispatch(data.action);
-
-      return;
-    }
-
+  // repeat() lifts the prevention before re-dispatching; dispatching the action directly
+  // would be blocked again and loop forever.
+  const disablePrevention = usePreventRemove(isDirty, ({ repeat }) => {
     Alert.alert(id.common.leaveTitle, id.common.leaveBody, [
       { text: id.common.stay, style: 'cancel' },
-      { text: id.common.leave, style: 'destructive', onPress: () => navigation.dispatch(data.action) },
+      { text: id.common.leave, style: 'destructive', onPress: repeat },
     ]);
   });
 
-  return {
-    allowNavigation: () => {
-      allowed.current = true;
-    },
-  };
+  return { allowNavigation: disablePrevention };
 }
