@@ -19,7 +19,7 @@ Android : eas build ─▶ APK/AAB, menunjuk ke https://DOMAIN
 | Komponen             | Dibangun oleh         | Dijalankan di             |
 | -------------------- | --------------------- | ------------------------- |
 | Dashboard web + API  | GitHub Actions → GHCR | Dokploy (container, 8080) |
-| PostgreSQL 17        | —                     | Dokploy (service DB)      |
+| PostgreSQL           | — (service yang sudah ada) | Server PostgreSQL terpisah |
 | Aplikasi Android     | EAS Build             | Perangkat pemilik         |
 
 Dashboard dan API adalah **satu aplikasi Laravel**, jadi hanya ada satu image dan satu domain.
@@ -51,9 +51,18 @@ Pertama kali, package baru muncul setelah workflow `docker` sukses sekali. Jika 
 
 ### 4.1 Database
 
-1. Buat service **PostgreSQL**, versi 17 (sama dengan CI).
-2. Catat host internal, nama database, user, dan password.
-3. Aktifkan **backup harian** ke penyimpanan terpisah (S3 atau kompatibel), retensi minimal 14 hari. Uji restore sebelum dipakai produksi (lihat bagian 7).
+Memakai service PostgreSQL yang sudah ada; tidak ada image database yang dibuild di repo ini.
+
+1. Di server PostgreSQL tersebut, buat database dan user khusus untuk BarberLog (jangan pakai superuser):
+
+```sql
+CREATE USER barberlog WITH PASSWORD '...';
+CREATE DATABASE barberlog OWNER barberlog;
+```
+
+2. Pastikan container aplikasi bisa menjangkau host PostgreSQL (satu jaringan Docker/Dokploy, atau host dan port yang terbuka untuk server aplikasi). Isi `DB_HOST`, `DB_PORT`, dan kredensial di langkah 4.2.
+3. Versi PostgreSQL yang diuji di CI adalah 17; versi lain belum diuji.
+4. Pastikan database `barberlog` ikut **backup harian** ke penyimpanan terpisah, retensi minimal 14 hari. Uji restore sebelum dipakai produksi (lihat bagian 7).
 
 ### 4.2 Aplikasi
 
@@ -73,7 +82,7 @@ Pertama kali, package baru muncul setelah workflow `docker` sukses sekali. Jika 
 | `LOG_CHANNEL`            | `stderr`                                           | Log terbaca di tab Logs Dokploy.                                |
 | `LOG_LEVEL`              | `info`                                             |                                                                 |
 | `DB_CONNECTION`          | `pgsql`                                            |                                                                 |
-| `DB_HOST`                | host internal PostgreSQL                           |                                                                 |
+| `DB_HOST`                | host PostgreSQL yang sudah ada                     | Harus terjangkau dari container aplikasi.                       |
 | `DB_PORT`                | `5432`                                             |                                                                 |
 | `DB_DATABASE`            | nama database                                      |                                                                 |
 | `DB_USERNAME`            | user database                                      |                                                                 |
