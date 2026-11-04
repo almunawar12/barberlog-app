@@ -32,6 +32,17 @@
     "experiments": {
       "typedRoutes": false,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "68424ec5-a231-4a2f-a3a2-e5abd7025560"
+      }
+    },
+    "owner": "almunawar17"
   }
 }
