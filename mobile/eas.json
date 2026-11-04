@@ -7,12 +7,12 @@
     "preview": {
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "env": { "EXPO_PUBLIC_API_URL": "https://barberlog.example.com" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://barberlog.ardev.my.id" }
     },
     "production": {
       "autoIncrement": true,
       "android": { "buildType": "app-bundle" },
-      "env": { "EXPO_PUBLIC_API_URL": "https://barberlog.example.com" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://barberlog.ardev.my.id" }
     }
   },
   "submit": {
