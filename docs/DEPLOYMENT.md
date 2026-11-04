@@ -16,11 +16,11 @@ git push main
 Android : eas build ─▶ APK/AAB, menunjuk ke https://DOMAIN
 ```
 
-| Komponen             | Dibangun oleh         | Dijalankan di             |
-| -------------------- | --------------------- | ------------------------- |
-| Dashboard web + API  | GitHub Actions → GHCR | Dokploy (container, 8080) |
-| PostgreSQL           | — (service yang sudah ada) | Server PostgreSQL terpisah |
-| Aplikasi Android     | EAS Build             | Perangkat pemilik         |
+| Komponen            | Dibangun oleh              | Dijalankan di              |
+| ------------------- | -------------------------- | -------------------------- |
+| Dashboard web + API | GitHub Actions → GHCR      | Dokploy (container, 8080)  |
+| PostgreSQL          | — (service yang sudah ada) | Server PostgreSQL terpisah |
+| Aplikasi Android    | EAS Build                  | Perangkat pemilik          |
 
 Dashboard dan API adalah **satu aplikasi Laravel**, jadi hanya ada satu image dan satu domain.
 
@@ -71,26 +71,26 @@ CREATE DATABASE barberlog OWNER barberlog;
 3. **Domains**: tambahkan domain, container port `8080`, HTTPS aktif (Let's Encrypt).
 4. **Environment** (tab Environment):
 
-| Variabel                 | Nilai                                              | Keterangan                                                      |
-| ------------------------ | -------------------------------------------------- | --------------------------------------------------------------- |
-| `APP_NAME`               | `BarberLog`                                        |                                                                 |
-| `APP_ENV`                | `production`                                       |                                                                 |
-| `APP_DEBUG`              | `false`                                            | Jangan `true` di produksi.                                      |
-| `APP_KEY`                | hasil `php artisan key:generate --show`            | Buat sekali, simpan aman. Mengganti nilai ini membatalkan sesi. |
-| `APP_URL`                | `https://domain-anda`                              | Harus `https`.                                                  |
-| `APP_LOCALE`             | `id`                                               |                                                                 |
-| `LOG_CHANNEL`            | `stderr`                                           | Log terbaca di tab Logs Dokploy.                                |
-| `LOG_LEVEL`              | `info`                                             |                                                                 |
-| `DB_CONNECTION`          | `pgsql`                                            |                                                                 |
-| `DB_HOST`                | host PostgreSQL yang sudah ada                     | Harus terjangkau dari container aplikasi.                       |
-| `DB_PORT`                | `5432`                                             |                                                                 |
-| `DB_DATABASE`            | nama database                                      |                                                                 |
-| `DB_USERNAME`            | user database                                      |                                                                 |
-| `DB_PASSWORD`            | password database                                  |                                                                 |
-| `SESSION_DRIVER`         | `database`                                         |                                                                 |
-| `SESSION_SECURE_COOKIE`  | `true`                                             | Cookie sesi hanya lewat HTTPS.                                  |
-| `CACHE_STORE`            | `database`                                         |                                                                 |
-| `QUEUE_CONNECTION`       | `database`                                         | Belum ada job; worker belum diperlukan.                         |
+| Variabel                | Nilai                                   | Keterangan                                                      |
+| ----------------------- | --------------------------------------- | --------------------------------------------------------------- |
+| `APP_NAME`              | `BarberLog`                             |                                                                 |
+| `APP_ENV`               | `production`                            |                                                                 |
+| `APP_DEBUG`             | `false`                                 | Jangan `true` di produksi.                                      |
+| `APP_KEY`               | hasil `php artisan key:generate --show` | Buat sekali, simpan aman. Mengganti nilai ini membatalkan sesi. |
+| `APP_URL`               | `https://domain-anda`                   | Harus `https`.                                                  |
+| `APP_LOCALE`            | `id`                                    |                                                                 |
+| `LOG_CHANNEL`           | `stderr`                                | Log terbaca di tab Logs Dokploy.                                |
+| `LOG_LEVEL`             | `info`                                  |                                                                 |
+| `DB_CONNECTION`         | `pgsql`                                 |                                                                 |
+| `DB_HOST`               | host PostgreSQL yang sudah ada          | Harus terjangkau dari container aplikasi.                       |
+| `DB_PORT`               | `5432`                                  |                                                                 |
+| `DB_DATABASE`           | nama database                           |                                                                 |
+| `DB_USERNAME`           | user database                           |                                                                 |
+| `DB_PASSWORD`           | password database                       |                                                                 |
+| `SESSION_DRIVER`        | `database`                              |                                                                 |
+| `SESSION_SECURE_COOKIE` | `true`                                  | Cookie sesi hanya lewat HTTPS.                                  |
+| `CACHE_STORE`           | `database`                              |                                                                 |
+| `QUEUE_CONNECTION`      | `database`                              | Belum ada job; worker belum diperlukan.                         |
 
 Jangan menaruh nilai rahasia di repo. `APP_KEY` dan `DB_PASSWORD` hanya ada di Dokploy.
 
@@ -148,9 +148,9 @@ Lakukan uji restore secara berkala; backup yang belum pernah dipulihkan belum te
 
 File terkait: `mobile/eas.json`, `mobile/app.json`.
 
-| Profil       | Hasil | Dipakai untuk                          |
-| ------------ | ----- | -------------------------------------- |
-| `preview`    | APK   | Instal langsung di perangkat pemilik   |
+| Profil       | Hasil | Dipakai untuk                              |
+| ------------ | ----- | ------------------------------------------ |
+| `preview`    | APK   | Instal langsung di perangkat pemilik       |
 | `production` | AAB   | Unggah ke Google Play; versi naik otomatis |
 
 ### 8.1 Setup (sekali saja)
@@ -192,19 +192,19 @@ Perlu Google service account key (konfigurasi di `eas.json` → `submit`, atau d
 
 ## 9. Pemecahan masalah
 
-| Gejala                                         | Kemungkinan penyebab dan tindakan                                                                                                      |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Workflow `docker` tidak jalan                  | `tests` gagal, atau dipicu dari pull request. Hanya push ke `main` yang membangun image.                                              |
-| Dokploy gagal menarik image (`denied`)         | Package privat tanpa kredensial. Lihat bagian 3.                                                                                       |
-| Build image gagal di `npm run build`           | Periksa log; plugin Wayfinder butuh `php artisan` jalan di tahap build. ⚠️ Tahap ini belum diuji.                                      |
-| Build gagal di `pdo_pgsql`                     | Image dasar tanpa ekstensi itu; tambahkan lewat `install-php-extensions pdo_pgsql` di Dockerfile.                                      |
-| 500 saat membuka halaman                       | `APP_KEY` kosong atau database tidak terjangkau. Lihat tab Logs.                                                                       |
-| Container tidak sehat                          | Migrasi gagal (cek kredensial DB), atau health check bukan `/up`.                                                                      |
-| Login web selalu 419 / sesi hilang             | `APP_URL` bukan `https`, atau `SESSION_SECURE_COOKIE=true` tetapi diakses lewat HTTP. Jangan mematikan proteksi CSRF.                  |
-| Tautan/aset memakai `http://`                  | Proxy tidak dipercaya; pastikan versi terbaru `bootstrap/app.php` (`trustProxies`) ikut ter-deploy.                                    |
-| Aplikasi mobile: gagal terhubung               | `EXPO_PUBLIC_API_URL` salah atau masih placeholder. Perbaiki di `eas.json` dan build ulang.                                            |
-| Aplikasi mobile: 401 terus                     | Token kedaluwarsa atau `APP_KEY` diganti. Login ulang.                                                                                 |
-| `owner:create` gagal "Akun pemilik sudah ada"  | Akun sudah dibuat. Pakai `owner:reset-password`.                                                                                       |
+| Gejala                                        | Kemungkinan penyebab dan tindakan                                                                                     |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Workflow `docker` tidak jalan                 | `tests` gagal, atau dipicu dari pull request. Hanya push ke `main` yang membangun image.                              |
+| Dokploy gagal menarik image (`denied`)        | Package privat tanpa kredensial. Lihat bagian 3.                                                                      |
+| Build image gagal di `npm run build`          | Periksa log; plugin Wayfinder butuh `php artisan` jalan di tahap build. ⚠️ Tahap ini belum diuji.                     |
+| Build gagal di `pdo_pgsql`                    | Image dasar tanpa ekstensi itu; tambahkan lewat `install-php-extensions pdo_pgsql` di Dockerfile.                     |
+| 500 saat membuka halaman                      | `APP_KEY` kosong atau database tidak terjangkau. Lihat tab Logs.                                                      |
+| Container tidak sehat                         | Migrasi gagal (cek kredensial DB), atau health check bukan `/up`.                                                     |
+| Login web selalu 419 / sesi hilang            | `APP_URL` bukan `https`, atau `SESSION_SECURE_COOKIE=true` tetapi diakses lewat HTTP. Jangan mematikan proteksi CSRF. |
+| Tautan/aset memakai `http://`                 | Proxy tidak dipercaya; pastikan versi terbaru `bootstrap/app.php` (`trustProxies`) ikut ter-deploy.                   |
+| Aplikasi mobile: gagal terhubung              | `EXPO_PUBLIC_API_URL` salah atau masih placeholder. Perbaiki di `eas.json` dan build ulang.                           |
+| Aplikasi mobile: 401 terus                    | Token kedaluwarsa atau `APP_KEY` diganti. Login ulang.                                                                |
+| `owner:create` gagal "Akun pemilik sudah ada" | Akun sudah dibuat. Pakai `owner:reset-password`.                                                                      |
 
 ## 10. Daftar periksa sebelum produksi
 
