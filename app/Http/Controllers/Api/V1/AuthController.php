@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -34,7 +36,12 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['email' => __('auth.failed')]);
         }
 
-        $token = $user->createToken($data['device_name'], ['*'], now()->addDays(self::TOKEN_LIFETIME_DAYS));
+        $token = DB::transaction(function () use ($user, $data) {
+            $token = $user->createToken($data['device_name'], ['*'], now()->addDays(self::TOKEN_LIFETIME_DAYS));
+            AuditLog::record($user, 'user', $user->id, 'login', null, ['channel' => 'mobile']);
+
+            return $token;
+        });
 
         return response()->json(['data' => [
             'token' => $token->plainTextToken,

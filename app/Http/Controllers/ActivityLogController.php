@@ -27,6 +27,7 @@ class ActivityLogController extends Controller
                     'entity_id' => $log->entity_id,
                     'action' => $log->action,
                     // Transactions/expenses carry reference + amount; user changes carry a name.
+                    'channel' => $snapshot['channel'] ?? null,
                     'label' => $snapshot['reference'] ?? $snapshot['name'] ?? null,
                     'amount' => $snapshot['total_amount'] ?? $snapshot['amount'] ?? null,
                     'created_at' => $log->created_at?->toIso8601String(),

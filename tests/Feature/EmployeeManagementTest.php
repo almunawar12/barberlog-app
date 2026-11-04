@@ -121,3 +121,22 @@ it('redirects to the list after saving', function () {
     $this->post('/employees', ['name' => 'Sari', 'email' => 'sari@example.com', 'password' => 'Sandi-kuat-123!'])
         ->assertRedirect('/employees');
 });
+
+it('logs web and mobile sign-ins in the activity log', function () {
+    $user = User::factory()->employee()->create(['email' => 'pegawai@example.com']);
+
+    $this->post('/login', ['email' => 'pegawai@example.com', 'password' => 'password']);
+    $this->postJson('/api/v1/auth/login', ['email' => 'pegawai@example.com', 'password' => 'password', 'device_name' => 'hp'])
+        ->assertOk();
+
+    $channels = AuditLog::where('action', 'login')->where('user_id', $user->id)->orderBy('id')->pluck('after_json')->pluck('channel');
+    expect($channels->all())->toBe(['web', 'mobile']);
+});
+
+it('does not log a failed sign-in', function () {
+    User::factory()->create(['email' => 'a@example.com']);
+
+    $this->post('/login', ['email' => 'a@example.com', 'password' => 'salah']);
+
+    expect(AuditLog::where('action', 'login')->count())->toBe(0);
+});

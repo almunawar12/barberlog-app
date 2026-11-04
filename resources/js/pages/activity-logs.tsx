@@ -11,6 +11,7 @@ type ActivityLog = {
     entity_type: string;
     entity_id: number;
     action: string;
+    channel: string | null;
     label: string | null;
     amount: number | null;
     created_at: string;
@@ -41,13 +42,24 @@ export default function ActivityLogs({ logs }: ActivityLogsProps) {
                         <li key={log.id} className="px-4 py-3">
                             <p className="text-sm">
                                 <strong>{log.user_name}</strong>{' '}
-                                {id.activityLog.actions[log.action] ??
-                                    log.action}{' '}
-                                {id.activityLog.entities[log.entity_type] ??
-                                    log.entity_type}
-                                {log.label && ` ${log.label}`}
-                                {log.amount !== null &&
-                                    ` · ${formatCurrency(log.amount)}`}
+                                {log.action === 'login' ? (
+                                    <>
+                                        {id.activityLog.login}
+                                        {log.channel &&
+                                            ` (${id.activityLog.channels[log.channel] ?? log.channel})`}
+                                    </>
+                                ) : (
+                                    <>
+                                        {id.activityLog.actions[log.action] ??
+                                            log.action}{' '}
+                                        {id.activityLog.entities[
+                                            log.entity_type
+                                        ] ?? log.entity_type}
+                                        {log.label && ` ${log.label}`}
+                                        {log.amount !== null &&
+                                            ` · ${formatCurrency(log.amount)}`}
+                                    </>
+                                )}
                             </p>
                             <p className="text-xs text-muted-foreground">
                                 {formatDateTime(log.created_at)}

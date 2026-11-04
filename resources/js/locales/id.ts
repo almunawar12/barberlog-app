@@ -170,6 +170,11 @@ export const id = {
             update: 'mengubah',
             delete: 'menghapus',
         } as Record<string, string>,
+        login: 'masuk',
+        channels: {
+            web: 'web',
+            mobile: 'aplikasi mobile',
+        } as Record<string, string>,
         entities: {
             transaction: 'transaksi',
             expense: 'pengeluaran',
