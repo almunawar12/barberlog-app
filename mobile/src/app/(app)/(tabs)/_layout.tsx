@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
+import { useMe } from '@/features/queries';
 import { id } from '@/locales/id';
 import { colors } from '@/theme';
 
@@ -14,6 +15,8 @@ function TabIcon({ filled, outline, focused, size }: TabIconProps) {
 }
 
 export default function TabsLayout() {
+  const isAdmin = useMe().data?.role === 'admin';
+
   return (
     <Tabs
       screenOptions={{
@@ -43,6 +46,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="reports"
         options={{
+          href: isAdmin ? undefined : null,
           title: id.nav.reports,
           tabBarIcon: ({ focused, size }) => <TabIcon filled="bar-chart" outline="bar-chart-outline" focused={focused} size={size} />,
         }}

@@ -40,8 +40,9 @@ export function useServices() {
   });
 }
 
-export function useSettings() {
+export function useSettings(enabled = true) {
   return useQuery({
+    enabled,
     queryKey: ['settings'],
     queryFn: async () => (await request<{ data: Settings }>('/settings')).data,
   });
@@ -50,7 +51,7 @@ export function useSettings() {
 export function useMe() {
   return useQuery({
     queryKey: ['me'],
-    queryFn: async () => (await request<{ data: { id: number; name: string; email: string } }>('/auth/me')).data,
+    queryFn: async () => (await request<{ data: { id: number; name: string; email: string; role: 'admin' | 'employee' } }>('/auth/me')).data,
   });
 }
 

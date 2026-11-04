@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import HistoryList from '@/components/HistoryList';
@@ -18,6 +18,8 @@ const todayLabel = new Intl.DateTimeFormat('id-ID', {
 type DashboardProps = { summary: ReportSummary; recent: HistoryRow[] };
 
 export default function Dashboard({ summary, recent }: DashboardProps) {
+    const { auth } = usePage().props;
+
     return (
         <AppLayout title={id.nav.dashboard}>
             <header>
@@ -29,25 +31,29 @@ export default function Dashboard({ summary, recent }: DashboardProps) {
 
             <SummaryCards summary={summary} />
 
-            <div className="grid gap-3 sm:grid-cols-2">
-                <Link
-                    href={transactions.create().url}
-                    className={buttonVariants({ className: 'h-14 text-base' })}
-                >
-                    <Plus aria-hidden />
-                    {id.dashboard.addTransaction}
-                </Link>
-                <Link
-                    href={expenses.create().url}
-                    className={buttonVariants({
-                        variant: 'outline',
-                        className: 'h-14 text-base',
-                    })}
-                >
-                    <Plus aria-hidden />
-                    {id.dashboard.addExpense}
-                </Link>
-            </div>
+            {!auth.is_admin && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                    <Link
+                        href={transactions.create().url}
+                        className={buttonVariants({
+                            className: 'h-14 text-base',
+                        })}
+                    >
+                        <Plus aria-hidden />
+                        {id.dashboard.addTransaction}
+                    </Link>
+                    <Link
+                        href={expenses.create().url}
+                        className={buttonVariants({
+                            variant: 'outline',
+                            className: 'h-14 text-base',
+                        })}
+                    >
+                        <Plus aria-hidden />
+                        {id.dashboard.addExpense}
+                    </Link>
+                </div>
+            )}
 
             <section className="space-y-3">
                 <div className="flex items-baseline justify-between">

@@ -17,7 +17,7 @@ class ResetOwnerPassword extends Command
 {
     public function handle(): int
     {
-        $owner = User::query()->first();
+        $owner = User::query()->where('role', 'admin')->oldest('id')->first();
 
         if ($owner === null) {
             $this->error('Belum ada akun pemilik. Jalankan owner:create.');

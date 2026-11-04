@@ -12,7 +12,7 @@ import userPassword from '@/routes/user-password';
 import type { Service, Shop } from '@/types/service';
 
 type SettingsProps = {
-    shop: Shop;
+    shop: Shop | null;
     services: Service[];
 };
 
@@ -20,8 +20,12 @@ export default function Settings({ shop, services }: SettingsProps) {
     return (
         <AppLayout title={id.nav.settings}>
             <h1 className="text-2xl font-semibold">{id.nav.settings}</h1>
-            <ShopSection shop={shop} services={services} />
-            <ServicesSection services={services} />
+            {shop && (
+                <>
+                    <ShopSection shop={shop} services={services} />
+                    <ServicesSection services={services} />
+                </>
+            )}
             <PasswordSection />
             <Card>
                 <CardHeader>
@@ -35,7 +39,7 @@ export default function Settings({ shop, services }: SettingsProps) {
     );
 }
 
-function ShopSection({ shop, services }: SettingsProps) {
+function ShopSection({ shop, services }: { shop: Shop; services: Service[] }) {
     const form = useForm({
         name: shop.name,
         default_service_id:

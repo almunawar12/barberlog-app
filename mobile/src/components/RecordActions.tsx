@@ -5,6 +5,7 @@ import { Alert, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { FormAlert } from '@/components/FormAlert';
+import { useMe } from '@/features/queries';
 import { request } from '@/lib/api-client';
 import { describeWriteError } from '@/lib/errors';
 import type { WriteFailure } from '@/lib/errors';
@@ -27,6 +28,7 @@ type RecordActionsProps = {
 /** Edit and delete for a record; delete asks first, showing the date and amount being removed. */
 export function RecordActions({ kind, recordId, version, occurredAt, amount, deleteTitle, deleteBody }: RecordActionsProps) {
   const queryClient = useQueryClient();
+  const me = useMe();
   const [failure, setFailure] = useState<WriteFailure | null>(null);
 
   const mutation = useMutation({
@@ -62,6 +64,10 @@ export function RecordActions({ kind, recordId, version, occurredAt, amount, del
       { text: id.common.cancel, style: 'cancel' },
       { text: id.common.delete, style: 'destructive', onPress: () => void remove() },
     ]);
+  }
+
+  if (me.data?.role !== 'admin') {
+    return null;
   }
 
   return (

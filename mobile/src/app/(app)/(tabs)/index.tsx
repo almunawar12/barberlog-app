@@ -6,7 +6,7 @@ import { Button } from '@/components/Button';
 import { HistoryRowItem } from '@/components/HistoryRowItem';
 import { Screen } from '@/components/Screen';
 import { SummaryCards } from '@/components/SummaryCards';
-import { useDashboard } from '@/features/queries';
+import { useDashboard, useMe } from '@/features/queries';
 import { id } from '@/locales/id';
 import { colors, radius, spacing } from '@/theme';
 
@@ -14,6 +14,7 @@ const todayLabel = new Intl.DateTimeFormat('id-ID', { dateStyle: 'full', timeZon
 
 export default function Dashboard() {
   const dashboard = useDashboard();
+  const me = useMe();
 
   return (
     <Screen refreshControl={<RefreshControl refreshing={dashboard.isRefetching} onRefresh={() => void dashboard.refetch()} />}>
@@ -24,10 +25,12 @@ export default function Dashboard() {
           <>
             <SummaryCards summary={dashboard.data.summary} />
 
-            <View style={styles.actions}>
-              <Button title={id.dashboard.addTransaction} onPress={() => router.push('/transaction/new')} />
-              <Button title={id.dashboard.addExpense} variant="outline" onPress={() => router.push('/expense/new')} />
-            </View>
+            {me.data?.role === 'employee' && (
+              <View style={styles.actions}>
+                <Button title={id.dashboard.addTransaction} onPress={() => router.push('/transaction/new')} />
+                <Button title={id.dashboard.addExpense} variant="outline" onPress={() => router.push('/expense/new')} />
+              </View>
+            )}
 
             <Text accessibilityRole="header" style={styles.heading}>
               {id.dashboard.recent}

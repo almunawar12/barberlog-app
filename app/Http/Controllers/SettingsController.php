@@ -7,13 +7,18 @@ use App\Http\Requests\UpdateShopSettingsRequest;
 use App\Models\Service;
 use App\Models\ShopSetting;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SettingsController extends Controller
 {
-    public function edit(): Response
+    public function edit(Request $request): Response
     {
+        if (! $request->user()?->isAdmin()) {
+            return Inertia::render('settings', ['shop' => null, 'services' => []]);
+        }
+
         $shop = ShopSetting::current();
 
         return Inertia::render('settings', [

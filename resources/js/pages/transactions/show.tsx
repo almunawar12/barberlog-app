@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Pencil } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import DeleteRecordButton from '@/components/DeleteRecordButton';
@@ -15,6 +15,8 @@ export default function ShowTransaction({
 }: {
     transaction: TransactionRecord;
 }) {
+    const { auth } = usePage().props;
+
     return (
         <AppLayout title={id.transaction.title}>
             <header>
@@ -78,24 +80,26 @@ export default function ShowTransaction({
                 </CardContent>
             </Card>
 
-            <div className="flex flex-wrap gap-3">
-                <Link
-                    href={transactions.edit(transaction.id).url}
-                    className={buttonVariants({ variant: 'outline' })}
-                >
-                    <Pencil aria-hidden />
-                    {id.common.edit}
-                </Link>
-                <DeleteRecordButton
-                    url={transactions.destroy(transaction.id).url}
-                    version={transaction.version}
-                    occurredAt={transaction.occurred_at}
-                    amount={transaction.total_amount}
-                    title={id.transaction.deleteTitle}
-                    body={id.transaction.deleteBody}
-                    confirmLabel={id.transaction.deleteConfirm}
-                />
-            </div>
+            {auth.is_admin && (
+                <div className="flex flex-wrap gap-3">
+                    <Link
+                        href={transactions.edit(transaction.id).url}
+                        className={buttonVariants({ variant: 'outline' })}
+                    >
+                        <Pencil aria-hidden />
+                        {id.common.edit}
+                    </Link>
+                    <DeleteRecordButton
+                        url={transactions.destroy(transaction.id).url}
+                        version={transaction.version}
+                        occurredAt={transaction.occurred_at}
+                        amount={transaction.total_amount}
+                        title={id.transaction.deleteTitle}
+                        body={id.transaction.deleteBody}
+                        confirmLabel={id.transaction.deleteConfirm}
+                    />
+                </div>
+            )}
         </AppLayout>
     );
 }

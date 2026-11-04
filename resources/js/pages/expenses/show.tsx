@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Pencil } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import DeleteRecordButton from '@/components/DeleteRecordButton';
@@ -11,6 +11,8 @@ import expenses from '@/routes/expenses';
 import type { ExpenseRecord } from '@/types/records';
 
 export default function ShowExpense({ expense }: { expense: ExpenseRecord }) {
+    const { auth } = usePage().props;
+
     return (
         <AppLayout title={id.expense.title}>
             <header>
@@ -55,24 +57,26 @@ export default function ShowExpense({ expense }: { expense: ExpenseRecord }) {
                 </CardContent>
             </Card>
 
-            <div className="flex flex-wrap gap-3">
-                <Link
-                    href={expenses.edit(expense.id).url}
-                    className={buttonVariants({ variant: 'outline' })}
-                >
-                    <Pencil aria-hidden />
-                    {id.common.edit}
-                </Link>
-                <DeleteRecordButton
-                    url={expenses.destroy(expense.id).url}
-                    version={expense.version}
-                    occurredAt={expense.occurred_at}
-                    amount={expense.amount}
-                    title={id.expense.deleteTitle}
-                    body={id.expense.deleteBody}
-                    confirmLabel={id.expense.deleteConfirm}
-                />
-            </div>
+            {auth.is_admin && (
+                <div className="flex flex-wrap gap-3">
+                    <Link
+                        href={expenses.edit(expense.id).url}
+                        className={buttonVariants({ variant: 'outline' })}
+                    >
+                        <Pencil aria-hidden />
+                        {id.common.edit}
+                    </Link>
+                    <DeleteRecordButton
+                        url={expenses.destroy(expense.id).url}
+                        version={expense.version}
+                        occurredAt={expense.occurred_at}
+                        amount={expense.amount}
+                        title={id.expense.deleteTitle}
+                        body={id.expense.deleteBody}
+                        confirmLabel={id.expense.deleteConfirm}
+                    />
+                </div>
+            )}
         </AppLayout>
     );
 }

@@ -29,11 +29,11 @@ class AuthController extends Controller
         $provider = Auth::createUserProvider('users');
         $user = $provider->retrieveByCredentials(['email' => Str::lower($data['email'])]);
 
-        if ($user === null || ! $provider->validateCredentials($user, ['password' => $data['password']])) {
+        /** @var User|null $user */
+        if ($user === null || ! $user->isActive() || ! $provider->validateCredentials($user, ['password' => $data['password']])) {
             throw ValidationException::withMessages(['email' => __('auth.failed')]);
         }
 
-        /** @var User $user */
         $token = $user->createToken($data['device_name'], ['*'], now()->addDays(self::TOKEN_LIFETIME_DAYS));
 
         return response()->json(['data' => [
@@ -91,10 +91,10 @@ class AuthController extends Controller
     }
 
     /**
-     * @return array{id: int, name: string, email: string}
+     * @return array{id: int, name: string, email: string, role: string}
      */
     private function userData(User $user): array
     {
-        return ['id' => $user->id, 'name' => $user->name, 'email' => $user->email];
+        return ['id' => $user->id, 'name' => $user->name, 'email' => $user->email, 'role' => $user->role];
     }
 }

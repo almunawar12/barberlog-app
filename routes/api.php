@@ -21,18 +21,25 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('/dashboard', DashboardController::class);
         Route::get('/history', [HistoryController::class, 'index']);
-        Route::get('/reports/summary', [ReportController::class, 'summary']);
-        Route::get('/reports/export', [ReportController::class, 'export']);
-
         Route::get('/services', [ServiceController::class, 'index']);
-        Route::post('/services', [ServiceController::class, 'store']);
-        Route::put('/services/{service}', [ServiceController::class, 'update']);
 
-        // destroy resolves soft-deleted records too, so repeating a delete stays a 204 instead of a 404.
-        Route::apiResource('transactions', TransactionController::class)->withTrashed(['destroy']);
-        Route::apiResource('expenses', ExpenseController::class)->withTrashed(['destroy']);
+        // Employees (pegawai) may record and view; everything below is admin-only.
+        Route::apiResource('transactions', TransactionController::class)->only(['index', 'store', 'show']);
+        Route::apiResource('expenses', ExpenseController::class)->only(['index', 'store', 'show']);
 
-        Route::get('/settings', [SettingsController::class, 'show']);
-        Route::put('/settings', [SettingsController::class, 'update']);
+        Route::middleware('admin')->group(function () {
+            Route::get('/reports/summary', [ReportController::class, 'summary']);
+            Route::get('/reports/export', [ReportController::class, 'export']);
+
+            Route::post('/services', [ServiceController::class, 'store']);
+            Route::put('/services/{service}', [ServiceController::class, 'update']);
+
+            // destroy resolves soft-deleted records too, so repeating a delete stays a 204 instead of a 404.
+            Route::apiResource('transactions', TransactionController::class)->only(['update', 'destroy'])->withTrashed(['destroy']);
+            Route::apiResource('expenses', ExpenseController::class)->only(['update', 'destroy'])->withTrashed(['destroy']);
+
+            Route::get('/settings', [SettingsController::class, 'show']);
+            Route::put('/settings', [SettingsController::class, 'update']);
+        });
     });
 });

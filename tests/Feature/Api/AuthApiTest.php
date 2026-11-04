@@ -26,7 +26,7 @@ it('logs in with a Bearer token valid for 30 days', function () {
 
     $data = apiLogin($user);
 
-    expect($data['user'])->toBe(['id' => $user->id, 'name' => $user->name, 'email' => $user->email])
+    expect($data['user'])->toBe(['id' => $user->id, 'name' => $user->name, 'email' => $user->email, 'role' => 'admin'])
         ->and($data['token'])->toBeString()->not->toBeEmpty()
         ->and(now()->addDays(30)->diffInMinutes($data['expires_at'], absolute: true))->toBeLessThan(2);
 

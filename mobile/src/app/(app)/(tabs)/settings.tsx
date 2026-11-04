@@ -22,9 +22,10 @@ import { colors, spacing, touchTarget } from '@/theme';
 import type { Service, Settings as ShopSettings } from '@/types';
 
 export default function SettingsScreen() {
-  const settings = useSettings();
-  const services = useServices();
   const me = useMe();
+  const isAdmin = me.data?.role === 'admin';
+  const settings = useSettings(isAdmin);
+  const services = useServices();
   const { signOut } = useAuth();
 
   async function logout() {
@@ -37,21 +38,23 @@ export default function SettingsScreen() {
 
   return (
     <Screen>
-      <AsyncView
-        isLoading={settings.isLoading || services.isLoading}
-        error={settings.error ?? services.error}
-        onRetry={() => {
-          void settings.refetch();
-          void services.refetch();
-        }}
-      >
-        {settings.data && services.data && (
-          <>
-            <ShopSection key={`${settings.data.name}-${settings.data.default_service_id}`} settings={settings.data} services={services.data} />
-            <ServicesSection services={services.data} />
-          </>
-        )}
-      </AsyncView>
+      {isAdmin && (
+        <AsyncView
+          isLoading={settings.isLoading || services.isLoading}
+          error={settings.error ?? services.error}
+          onRetry={() => {
+            void settings.refetch();
+            void services.refetch();
+          }}
+        >
+          {settings.data && services.data && (
+            <>
+              <ShopSection key={`${settings.data.name}-${settings.data.default_service_id}`} settings={settings.data} services={services.data} />
+              <ServicesSection services={services.data} />
+            </>
+          )}
+        </AsyncView>
+      )}
       <PasswordSection />
       <Card title={id.settings.accountTitle}>
         {me.data && <Text style={styles.muted}>{me.data.email}</Text>}

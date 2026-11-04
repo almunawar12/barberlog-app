@@ -1,17 +1,44 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ChartColumn, History, House, LogOut, Settings } from 'lucide-react';
+import {
+    ChartColumn,
+    History,
+    House,
+    LogOut,
+    ScrollText,
+    Settings,
+    Users,
+} from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { id } from '@/locales/id';
 import { cn } from '@/lib/utils';
 import { dashboard, history, logout, reports } from '@/routes';
+import activityLogs from '@/routes/activity-logs';
+import employees from '@/routes/employees';
 import settings from '@/routes/settings';
 
-const navItems = [
+const allNavItems = [
     { label: id.nav.dashboard, href: dashboard().url, icon: House },
     { label: id.nav.history, href: history().url, icon: History },
-    { label: id.nav.reports, href: reports().url, icon: ChartColumn },
+    {
+        label: id.nav.reports,
+        href: reports().url,
+        icon: ChartColumn,
+        adminOnly: true,
+    },
+    {
+        label: id.nav.employees,
+        href: employees.index().url,
+        icon: Users,
+        adminOnly: true,
+    },
+    {
+        label: id.nav.activityLog,
+        href: activityLogs.index().url,
+        icon: ScrollText,
+        adminOnly: true,
+    },
     { label: id.nav.settings, href: settings.edit().url, icon: Settings },
 ];
 
@@ -47,6 +74,9 @@ export function LogoutButton({ className }: { className?: string }) {
 
 export default function AppLayout({ title, children }: AppLayoutProps) {
     const page = usePage();
+    const navItems = allNavItems.filter(
+        (item) => !item.adminOnly || page.props.auth.is_admin,
+    );
     const message = page.props.status
         ? id.status[page.props.status]
         : undefined;
@@ -77,7 +107,7 @@ export default function AppLayout({ title, children }: AppLayoutProps) {
             </aside>
 
             <main className="min-w-0 flex-1 px-4 pt-6 pb-24 md:px-8 md:pb-10">
-                <div className="mx-auto max-w-2xl space-y-6">
+                <div className="space-y-6">
                     {message && (
                         <p
                             role="status"
@@ -107,7 +137,7 @@ export default function AppLayout({ title, children }: AppLayoutProps) {
     );
 }
 
-type NavLinkProps = (typeof navItems)[number] & {
+type NavLinkProps = Omit<(typeof allNavItems)[number], 'adminOnly'> & {
     currentUrl: string;
     stacked?: boolean;
 };

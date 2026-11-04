@@ -4,6 +4,8 @@ export const id = {
         history: 'Riwayat',
         reports: 'Laporan',
         settings: 'Pengaturan',
+        employees: 'Karyawan',
+        activityLog: 'Log',
         primary: 'Menu utama',
     },
     common: {
@@ -44,6 +46,7 @@ export const id = {
     },
     status: {
         'service-saved': 'Layanan disimpan.',
+        'employee-saved': 'Karyawan disimpan.',
         'shop-updated': 'Pengaturan usaha disimpan.',
         'password-updated': 'Kata sandi diubah.',
         'transaction-saved': 'Transaksi tersimpan.',
@@ -142,6 +145,36 @@ export const id = {
         confirmPassword: 'Ulangi kata sandi baru',
         resetPassword: 'Ubah kata sandi',
         resetting: 'Mengubah…',
+    },
+    employees: {
+        title: 'Karyawan',
+        hint: 'Pegawai dapat mencatat dan melihat transaksi, tetapi tidak dapat mengubah, menghapus, atau membuka laporan dan pengaturan usaha.',
+        empty: 'Belum ada karyawan. Tambahkan karyawan pertama Anda.',
+        new: 'Karyawan baru',
+        editTitle: 'Ubah karyawan',
+        activeStatus: 'Aktif',
+        add: 'Tambah karyawan',
+        name: 'Nama',
+        email: 'Email',
+        password: 'Kata sandi',
+        newPasswordHint: 'Kosongkan jika tidak ingin mengubah kata sandi.',
+        active: 'Aktif (boleh masuk)',
+        inactive: 'Nonaktif',
+    },
+    activityLog: {
+        title: 'Log aktivitas',
+        empty: 'Belum ada aktivitas tercatat.',
+        pagination: 'Halaman log aktivitas',
+        actions: {
+            create: 'menambahkan',
+            update: 'mengubah',
+            delete: 'menghapus',
+        } as Record<string, string>,
+        entities: {
+            transaction: 'transaksi',
+            expense: 'pengeluaran',
+            user: 'karyawan',
+        } as Record<string, string>,
     },
     settings: {
         shopTitle: 'Usaha',

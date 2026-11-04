@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
             'status' => fn () => $request->session()->get('status'),
             'auth' => [
                 'user' => $request->user(),
+                'is_admin' => $request->user()?->isAdmin() ?? false,
             ],
         ];
     }
