@@ -43,7 +43,7 @@ File terkait: `Dockerfile`, `.dockerignore`, `.github/workflows/docker.yml`.
 **Akses image privat.** Secara default package GHCR privat. Pilih salah satu:
 
 - Jadikan package publik: GitHub → Packages → `barberlog-app` → Package settings → Change visibility.
-- Atau buat Personal Access Token (classic) dengan scope `read:packages`, lalu isikan di Dokploy sebagai kredensial registry (`ghcr.io`, username GitHub, token sebagai password).
+- Atau buat Personal Access Token (classic) dengan scope `read:packages`, lalu jalankan `docker login ghcr.io` di server Dokploy (lihat 4.2 langkah 4).
 
 Pertama kali, package baru muncul setelah workflow `docker` sukses sekali. Jika workflow tidak terpicu, cek bahwa `tests` selesai sukses dan event-nya `push` (bukan pull request).
 
@@ -64,42 +64,35 @@ CREATE DATABASE barberlog OWNER barberlog;
 3. Versi PostgreSQL yang diuji di CI adalah 17; versi lain belum diuji.
 4. Pastikan database `barberlog` ikut **backup harian** ke penyimpanan terpisah, retensi minimal 14 hari. Uji restore sebelum dipakai produksi (lihat bagian 7).
 
-### 4.2 Aplikasi
+### 4.2 Aplikasi (Compose, Raw)
 
-1. Buat **Application** → Source Type **Docker**.
-2. Docker Image: `ghcr.io/almunawar12/barberlog-app:latest`; isi kredensial registry bila privat.
-3. **Domains**: tambahkan domain, container port `8080`, HTTPS aktif (Let's Encrypt).
-4. **Environment** (tab Environment):
+1. Di Dokploy buat **Compose** → Source Type **Raw**, Compose Type `docker-compose`.
+2. Tempel isi [deploy/docker-compose.yml](../deploy/docker-compose.yml). Variabel tetap (`APP_ENV=production`, `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, dst.) sudah ada di file itu.
+3. Tab **Environment**, isi variabel yang dibaca compose:
 
-| Variabel                | Nilai                                   | Keterangan                                                      |
-| ----------------------- | --------------------------------------- | --------------------------------------------------------------- |
-| `APP_NAME`              | `BarberLog`                             |                                                                 |
-| `APP_ENV`               | `production`                            |                                                                 |
-| `APP_DEBUG`             | `false`                                 | Jangan `true` di produksi.                                      |
-| `APP_KEY`               | hasil `php artisan key:generate --show` | Buat sekali, simpan aman. Mengganti nilai ini membatalkan sesi. |
-| `APP_URL`               | `https://domain-anda`                   | Harus `https`.                                                  |
-| `APP_LOCALE`            | `id`                                    |                                                                 |
-| `LOG_CHANNEL`           | `stderr`                                | Log terbaca di tab Logs Dokploy.                                |
-| `LOG_LEVEL`             | `info`                                  |                                                                 |
-| `DB_CONNECTION`         | `pgsql`                                 |                                                                 |
-| `DB_HOST`               | host PostgreSQL yang sudah ada          | Harus terjangkau dari container aplikasi.                       |
-| `DB_PORT`               | `5432`                                  |                                                                 |
-| `DB_DATABASE`           | nama database                           |                                                                 |
-| `DB_USERNAME`           | user database                           |                                                                 |
-| `DB_PASSWORD`           | password database                       |                                                                 |
-| `SESSION_DRIVER`        | `database`                              |                                                                 |
-| `SESSION_SECURE_COOKIE` | `true`                                  | Cookie sesi hanya lewat HTTPS.                                  |
-| `CACHE_STORE`           | `database`                              |                                                                 |
-| `QUEUE_CONNECTION`      | `database`                              | Belum ada job; worker belum diperlukan.                         |
+| Variabel      | Nilai                                   | Keterangan                                                             |
+| ------------- | --------------------------------------- | ---------------------------------------------------------------------- |
+| `APP_KEY`     | hasil `php artisan key:generate --show` | Wajib. Buat sekali, simpan aman. Mengganti nilai ini membatalkan sesi. |
+| `APP_URL`     | `https://domain-anda`                   | Wajib, harus `https`.                                                  |
+| `DB_HOST`     | host PostgreSQL yang sudah ada          | Wajib. Harus terjangkau dari container aplikasi.                       |
+| `DB_PORT`     | `5432`                                  | Opsional (bawaan `5432`).                                              |
+| `DB_DATABASE` | nama database                           | Opsional (bawaan `barberlog`).                                         |
+| `DB_USERNAME` | user database                           | Wajib.                                                                 |
+| `DB_PASSWORD` | password database                       | Wajib.                                                                 |
+| `LOG_LEVEL`   | `info`                                  | Opsional.                                                              |
+| `IMAGE_TAG`   | `latest` atau `sha-<commit>`            | Opsional (bawaan `latest`). Dipakai untuk rollback.                    |
 
-Jangan menaruh nilai rahasia di repo. `APP_KEY` dan `DB_PASSWORD` hanya ada di Dokploy.
+Jangan menaruh nilai rahasia di repo. `APP_KEY` dan `DB_PASSWORD` hanya ada di Dokploy. Compose akan menolak start bila variabel wajib kosong.
 
-5. **Health check**: path `/up` (disediakan Laravel).
-6. Jumlah replika: **1**. Migrasi berjalan otomatis saat container start (`AUTORUN_ENABLED=true`); beberapa replika bisa menjalankan migrasi bersamaan.
+4. Image privat: login registry `ghcr.io` di server Dokploy (`docker login ghcr.io -u <user>` dengan token `read:packages`), karena Compose Raw tidak punya kolom kredensial registry.
+5. **Jaringan:** compose memakai network `dokploy-network` agar Traefik dapat menjangkau container. Jika database juga container di server yang sama, pastikan ia berada di network yang sama, atau pakai host/port yang terbuka.
+6. **Domains** (tab Domains): pilih service `app`, container port `8080`, HTTPS aktif (Let's Encrypt).
+7. **Health check:** image sudah punya `HEALTHCHECK` ke `/up`.
+8. Jalankan satu instance saja. Migrasi berjalan otomatis saat container start (`AUTORUN_ENABLED=true`); beberapa instance bisa menjalankan migrasi bersamaan.
 
 ### 4.3 Deploy otomatis (opsional)
 
-1. Di Dokploy, tab **Deployments** aplikasi, salin **Webhook URL**.
+1. Di Dokploy, tab **Deployments** Compose, salin **Webhook URL**.
 2. Di GitHub: Settings → Secrets and variables → Actions → New repository secret, nama `DOKPLOY_WEBHOOK_URL`.
 3. Setelah image terpush, workflow memanggil webhook itu. ⚠️ Belum diuji pada versi Dokploy Anda; jika tidak memicu deploy, hapus secret dan deploy manual lewat tombol **Deploy**.
 
@@ -124,7 +117,7 @@ Perintah akan meminta kata sandi. Jika akun sudah ada, gunakan `php artisan owne
 
 **Rilis:** merge ke `main` → `tests` → `docker` → deploy (otomatis via webhook atau manual).
 
-**Rollback:** ubah image di Dokploy ke tag commit sebelumnya, misalnya `ghcr.io/almunawar12/barberlog-app:sha-<commit-lama>`, lalu Deploy. Migrasi tidak ikut mundur; jangan rollback melewati rilis yang mengubah skema tanpa memeriksa migrasinya. Setelah rollback selesai dan stabil, kembalikan ke `latest` hanya setelah perbaikan dirilis.
+**Rollback:** set `IMAGE_TAG` di tab Environment ke tag commit sebelumnya, misalnya `sha-<commit-lama>`, lalu Deploy. Migrasi tidak ikut mundur; jangan rollback melewati rilis yang mengubah skema tanpa memeriksa migrasinya. Setelah rollback selesai dan stabil, kembalikan ke `latest` hanya setelah perbaikan dirilis.
 
 Sebelum rilis yang berisi migrasi destruktif, buat backup manual dulu.
 

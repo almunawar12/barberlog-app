@@ -1,0 +1,31 @@
+# Paste into Dokploy → Compose → Source Type "Raw". Values come from the Environment tab.
+services:
+    app:
+        image: ghcr.io/almunawar12/barberlog-app:${IMAGE_TAG:-latest}
+        pull_policy: always
+        restart: unless-stopped
+        environment:
+            APP_NAME: BarberLog
+            APP_ENV: production
+            APP_DEBUG: 'false'
+            APP_KEY: ${APP_KEY:?APP_KEY is required}
+            APP_URL: ${APP_URL:?APP_URL is required}
+            APP_LOCALE: id
+            LOG_CHANNEL: stderr
+            LOG_LEVEL: ${LOG_LEVEL:-info}
+            DB_CONNECTION: pgsql
+            DB_HOST: ${DB_HOST:?DB_HOST is required}
+            DB_PORT: ${DB_PORT:-5432}
+            DB_DATABASE: ${DB_DATABASE:-barberlog}
+            DB_USERNAME: ${DB_USERNAME:?DB_USERNAME is required}
+            DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+            SESSION_DRIVER: database
+            SESSION_SECURE_COOKIE: 'true'
+            CACHE_STORE: database
+            QUEUE_CONNECTION: database
+        networks:
+            - dokploy-network
+
+networks:
+    dokploy-network:
+        external: true
